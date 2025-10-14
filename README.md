@@ -139,7 +139,6 @@ Please keep PRs focused and add context describing what changed and why. If youâ
 
 This project follows the [Django Code of Conduct](https://www.djangoproject.com/conduct/).  
 If you need to report a concern, email **chris@chrisdevcode.com** â€” reports are handled discreetly.
-
 ---
 
 ## License
