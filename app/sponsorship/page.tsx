@@ -1,5 +1,7 @@
 "use client"
 
+import Image from "next/image"
+import Link from "next/link"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
@@ -94,6 +96,43 @@ export default function SponsorshipPage() {
                   </li>
                 ))}
               </ul>
+              {t.sponsorshipPage.inKindPartners?.length ? (
+                <div className="mt-10 space-y-4">
+                  <h3 className="text-2xl font-semibold text-center md:text-left">
+                    {t.sponsorshipPage.inKindPartnersTitle}
+                  </h3>
+                  <p className="text-foreground/80 dark:text-foreground/95 leading-relaxed text-center md:text-left max-w-3xl">
+                    {t.sponsorshipPage.inKindPartnersDescription}
+                  </p>
+                  <div className="grid gap-6 pt-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {t.sponsorshipPage.inKindPartners.map(
+                      (partner: { name: string; role: string; link: string; logo: string }) => (
+                        <Link
+                          key={partner.name}
+                          href={partner.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group flex flex-col items-center rounded-xl border border-border/60 bg-background/60 p-6 text-center transition hover:border-primary/60 hover:shadow-lg dark:bg-background/40"
+                        >
+                          <div className="flex h-20 w-full items-center justify-center">
+                            <Image
+                              src={partner.logo}
+                              alt={`${partner.name} logo`}
+                              width={200}
+                              height={80}
+                              className="max-h-16 w-auto object-contain transition group-hover:scale-[1.03]"
+                            />
+                          </div>
+                          <div className="mt-4 space-y-1">
+                            <h4 className="text-xl font-semibold">{partner.name}</h4>
+                            <p className="text-sm text-foreground/70 dark:text-foreground/80">{partner.role}</p>
+                          </div>
+                        </Link>
+                      ),
+                    )}
+                  </div>
+                </div>
+              ) : null}
             </section>
           </div>
         </div>

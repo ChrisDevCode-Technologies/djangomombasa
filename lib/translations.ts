@@ -380,6 +380,17 @@ export const translations = {
         'Swag and promotional materials',
         'Media coverage and promotion',
       ],
+      inKindPartnersTitle: 'Media & In-Kind Partners',
+      inKindPartnersDescription:
+        'Grateful for the partners keeping our storytelling sharp and our coverage vibrant.',
+      inKindPartners: [
+        {
+          name: 'Ryzn Productions',
+          role: 'Media In-Kind Sponsor',
+          link: 'https://www.ryznproduction.com/',
+          logo: '/sponsors/ryzn.png',
+        },
+      ],
     },
     speakersPage: {
       title: 'Django Birthday Mombasa — Speaker Application Instructions',
@@ -978,6 +989,17 @@ export const translations = {
         'Vifaa vya sauti na kuona',
         'Bidhaa za matangazo zenye chapa',
         'Uandishi wa habari na utangazaji',
+      ],
+      inKindPartnersTitle: 'Wadau wa Vyombo vya Habari na In-Kind',
+      inKindPartnersDescription:
+        'Tunashukuru wadau wanaoifanya hadithi yetu iwe kali na taarifa zetu ziwafikie wengi.',
+      inKindPartners: [
+        {
+          name: 'Ryzn Productions',
+          role: 'Dhamini wa Vyombo vya Habari (In-kind)',
+          link: 'https://www.ryznproduction.com/',
+          logo: '/sponsors/ryzn.png',
+        },
       ],
     },
     speakersPage: {
