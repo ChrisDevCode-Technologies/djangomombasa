@@ -16,9 +16,9 @@ const mulish = Mulish({
 })
 
 export const metadata: Metadata = {
-  title: "Django Day Mombasa - Celebrating 20 Years",
+  title: "Django Mombasa - Celebrating 20 Years",
   description:
-    "Join us on December 5th in Mombasa to celebrate 20 years of Django - the web framework for perfectionists with deadlines.",
+    "Join the open developer community in Mombasa—next up: Django Day Mombasa on February 7, 2026.",
   generator: "v0.app",
 }
 

@@ -12,12 +12,12 @@ export const translations = {
     },
     hero: {
       badge: 'Celebrating 20 Years of Django',
-      title: 'Django Day',
-      subtitle: 'Mombasa',
+      title: 'Django Mombasa',
+      subtitle: 'Open Community for Developers',
       description:
-        'Join us for a milestone celebration honoring 20 years of Django — the web framework for perfectionists with deadlines',
-      date: 'December 5th',
-      time: 'Full Day Event',
+        'Open, welcoming, and locally powered. Join the Django Mombasa community — next up: Django Day Mombasa on 7 Feb 2026.',
+      date: '7 Feb 2026',
+      time: 'Flagship: Django Day Mombasa',
       location: 'Mombasa, Kenya',
       registerBtn: 'Register Now',
       sponsorBtn: 'Become a Sponsor',
@@ -29,9 +29,9 @@ export const translations = {
       },
     },
     overview: {
-      title: 'About Django Day Mombasa',
+      title: 'About Django Mombasa',
       description:
-        "Django Day Mombasa is a special celebration marking 20 years since Django's first release. This milestone event brings together the vibrant Kenyan tech community to honor the framework that has powered countless web applications worldwide.",
+        "Django Mombasa is a special celebration marking 20 years since Django's first release. This milestone event brings together the vibrant Kenyan tech community to honor the framework that has powered countless web applications worldwide.",
       djangoTitle: 'The Django Journey',
       djangoDescription:
         "Since 2005, Django has been empowering developers to build secure, scalable web applications rapidly. From startups to enterprise solutions, Django's 'batteries included' philosophy has made it a favorite among perfectionists with deadlines.",
@@ -74,7 +74,7 @@ export const translations = {
         {
           title: 'Growing Community',
           description:
-            'Hosting Django Day Mombasa connects developers, grows the community, and strengthens collaboration between startups, builders, and technology partners.',
+            'Hosting Django Mombasa connects developers, grows the community, and strengthens collaboration between startups, builders, and technology partners.',
         },
       ],
     },
@@ -140,29 +140,20 @@ export const translations = {
       note: 'Plus private and public sector digital transformation leaders.',
     },
     agenda: {
-      title: 'Event Agenda',
-      description:
-        'A full day of learning, networking, and celebration',
+      title: 'Event Highlights',
+      description: 'What’s next for the Django Mombasa community',
       highlights: [
         {
-          title: 'Keynote Address',
-          description: "Highlighting Django's achievements over 20 years.",
+          title: 'Django Day Mombasa — 7 Feb 2026',
+          description: 'Flagship gathering for talks, collaboration, and community building.',
         },
         {
-          title: 'Show & Tell',
-          description: 'Local uses of Django and packages we can contribute to.',
+          title: 'Django Girls Mombasa — 6 Feb 2026',
+          description: 'Empowering women and non-binary developers with a focused workshop day.',
         },
         {
-          title: 'Community Talks',
-          description: 'Selected talks from the call for proposals and sponsors.',
-        },
-        {
-          title: 'Birthday Celebration',
-          description: 'Songs, cake cutting, and festivities.',
-        },
-        {
-          title: 'Community Planning',
-          description: 'Collaborative to-do list for the year ahead.',
+          title: 'Django Technical Meetup 1 — TBA',
+          description: 'Hands-on technical deep dive; date and speakers announced soon.',
         },
       ],
       schedule: [
@@ -270,7 +261,7 @@ export const translations = {
     gallery: {
       title: 'Event Gallery',
       subtitle:
-        'Moments from Django Day Mombasa and the vibrant tech community',
+        'Moments from Django Mombasa and the vibrant tech community',
       pastEvents: 'Past Events',
       community: 'Community',
       venue: 'Venue & Location',
@@ -287,10 +278,10 @@ export const translations = {
       rights: 'All rights reserved.',
     },
     about: {
-      title: 'About Django Day Mombasa',
+      title: 'About Django Mombasa',
       subtitle: 'Celebrating Two Decades of Excellence',
       intro:
-        "Django Day Mombasa is more than just an event — it's a celebration of 20 years of innovation, community, and the framework that has transformed web development.",
+        "Django Mombasa is more than just an event — it's a celebration of 20 years of innovation, community, and the framework that has transformed web development.",
       mission: {
         title: 'Our Mission',
         description:
@@ -308,10 +299,10 @@ export const translations = {
       },
     },
     sponsorshipPage: {
-      title: 'Partner with Django Day Mombasa',
+      title: 'Partner with Django Mombasa',
       subtitle:
-        'Help us make the event worthwhile for the community. Your sponsorship keeps Django Day Mombasa accessible, impactful, and memorable.',
-      whyTitle: 'Why Support Django Day?',
+        'Help us make the event worthwhile for the community. Your sponsorship keeps Django Mombasa accessible, impactful, and memorable.',
+      whyTitle: 'Why Support Django Mombasa?',
       brandVisibility: {
         title: 'Brand Visibility',
         description:
@@ -393,10 +384,10 @@ export const translations = {
       ],
     },
     speakersPage: {
-      title: 'Django Birthday Mombasa — Speaker Application Instructions',
+      title: 'Django Mombasa — Speaker Application Instructions',
       subtitle: 'Call for Speakers',
       introParagraphs: [
-        'We’re inviting speakers from Mombasa and the coastal tech ecosystem to take the stage at Django Birthday Mombasa — an event dedicated to celebrating 20 years of Django and highlighting local talent.',
+        'We’re inviting speakers from Mombasa and the coastal tech ecosystem to take the stage at Django Mombasa — an event dedicated to celebrating 20 years of Django and highlighting local talent.',
         'This edition focuses on giving a platform to upcoming developers, tech enthusiasts, and community builders to showcase their work, ideas, and experiences.',
       ],
       guidelinesTitle: 'Speaker Guidelines',
@@ -471,11 +462,11 @@ export const translations = {
       supportMessage:
         'Support us to make this happen. Your time is highly valuable to us, and so are your skills.',
       ctaLabel: 'Reach out to Chris to volunteer',
-      ctaLink: 'mailto:chris@chrisdevcode.com?subject=Volunteer%20-%20Django%20Birthday%20Mombasa',
+      ctaLink: 'mailto:chris@chrisdevcode.com?subject=Volunteer%20-%20Django%20Mombasa',
       ctaEmail: 'chris@chrisdevcode.com',
     },
     registrationPage: {
-      title: 'Register for Django Day Mombasa',
+      title: 'Register for Django Mombasa',
       subtitle:
         'Secure your seat for a full day of Django learning, networking, and celebration.',
       highlightsTitle: "What You'll Experience",
@@ -546,7 +537,7 @@ export const translations = {
       introParagraphs: [
         'Like the wider Django community, our gathering welcomes people from many backgrounds—professionals and volunteers alike—who mentor, teach, and connect around code and community.',
         'Diversity is our strength, and it asks each of us to communicate with patience and empathy. These guidelines exist to help us enrich one another and ensure everyone feels welcome.',
-        'This code applies to every Django Birthday Mombasa space—onsite, online, and anywhere the event community gathers. Conduct outside official spaces can still affect participation.',
+        'This code applies to every Django Mombasa space—onsite, online, and anywhere the event community gathers. Conduct outside official spaces can still affect participation.',
       ],
       principlesTitle: 'What We Expect',
       principles: [
@@ -603,12 +594,12 @@ export const translations = {
     },
     hero: {
       badge: 'Kusherehekea Miaka 20 ya Django',
-      title: 'Siku ya Django',
-      subtitle: 'Mombasa',
+      title: 'Django Mombasa',
+      subtitle: 'Jumuiya Wazi kwa Wasanidi Programu',
       description:
-        'Jiunge nasi katika sherehe ya hatua muhimu ya kusherehekea miaka 20 ya Django — mfumo wa wavuti kwa wakamilifu wenye tarehe za mwisho',
-      date: 'Desemba 5',
-      time: 'Tukio la Siku Nzima',
+        'Jumuiya iliyo wazi, inakaribisha na inaendeshwa na wazawa. Jiunge na Django Mombasa — tukio kuu: Django Day Mombasa tarehe 7 Februari 2026.',
+      date: '7 Februari 2026',
+      time: 'Tukio Kuu: Django Day Mombasa',
       location: 'Mombasa, Kenya',
       registerBtn: 'Jisajili Sasa',
       sponsorBtn: 'Kuwa Mfadhili',
@@ -622,9 +613,9 @@ export const translations = {
       },
     },
     overview: {
-      title: 'Kuhusu Siku ya Django Mombasa',
+      title: 'Kuhusu Django Mombasa',
       description:
-        'Siku ya Django Mombasa ni sherehe maalum inayoashiria miaka 20 tangu toleo la kwanza la Django. Tukio hili muhimu linaunganisha jumuiya yenye nguvu ya teknolojia ya Kenya kuheshimu mfumo ambao umesaidia programu nyingi za wavuti duniani kote.',
+        'Django Mombasa ni sherehe maalum inayoashiria miaka 20 tangu toleo la kwanza la Django. Tukio hili muhimu linaunganisha jumuiya yenye nguvu ya teknolojia ya Kenya kuheshimu mfumo ambao umesaidia programu nyingi za wavuti duniani kote.',
       djangoTitle: 'Safari ya Django',
       djangoDescription:
         "Tangu 2005, Django imekuwa ikiwapa nguvu wasanidi programu programu kujenga programu za wavuti salama na zinazoweza kupanuliwa haraka. Kutoka biashara ndogo hadi suluhisho za makampuni, falsafa ya Django ya 'betri zilizojumuishwa' imeifanya kuwa kipenzi kwa wakamilifu wenye tarehe za mwisho.",
@@ -669,7 +660,7 @@ export const translations = {
         {
           title: 'Jumuiya Inayokua',
           description:
-            'Kupanga Siku ya Django Mombasa kunaunganisha wasanidi programu, kukuza jumuiya, na kuimarisha ushirikiano kati ya biashara anzilishi, wajenzi, na washirika wa teknolojia.',
+            'Kuandaa Django Mombasa kunaunganisha wasanidi programu, kukuza jumuiya, na kuimarisha ushirikiano kati ya biashara anzilishi, wajenzi, na washirika wa teknolojia.',
         },
       ],
     },
@@ -746,29 +737,21 @@ export const translations = {
       note: 'Pia viongozi wa mabadiliko ya kidijitali kutoka sekta ya umma na binafsi.',
     },
     agenda: {
-      title: 'Ratiba ya Tukio',
+      title: 'Mambo Muhimu ya Matukio',
       description:
-        'Siku nzima ya kujifunza, kuunganisha, na kusherehekea',
+        'Kinachofuata kwa jumuiya ya Django Mombasa',
       highlights: [
         {
-          title: 'Hotuba Kuu',
-          description: 'Inasisitiza mafanikio ya Django kwa miaka 20.',
+          title: 'Django Day Mombasa — 7 Februari 2026',
+          description: 'Mkutano mkuu wa mazungumzo, ushirikiano, na ujenzi wa jumuiya.',
         },
         {
-          title: 'Onyesha na Simulia',
-          description: 'Matumizi ya ndani ya Django na vifurushi tunavyoweza kuchangia.',
+          title: 'Django Girls Mombasa — 6 Februari 2026',
+          description: 'Kuziwezesha wanawake na wasiojiainisha kwa jinsia kupitia warsha maalum.',
         },
         {
-          title: 'Mazungumzo ya Jumuiya',
-          description: 'Mazungumzo yaliyoteuliwa kutoka kwa wito wa mapendekezo na wafadhili.',
-        },
-        {
-          title: 'Sherehe ya Kuzaliwa',
-          description: 'Nyimbo, kukata keki, na sherehe.',
-        },
-        {
-          title: 'Mipango ya Jumuiya',
-          description: 'Orodha ya pamoja ya mambo ya kufanya kwa mwaka ujao.',
+          title: 'Kikao cha Kwanza cha Django Technical Meetup — Tarehe Kutangazwa',
+          description: 'Mazoezi ya kiufundi; tarehe na wasemaji watatangazwa hivi karibuni.',
         },
       ],
       schedule: [
@@ -880,7 +863,7 @@ export const translations = {
     gallery: {
       title: 'Mkusanyiko wa Picha',
       subtitle:
-        'Matukio kutoka Siku ya Django Mombasa na jumuiya yenye nguvu ya teknolojia',
+        'Matukio kutoka Django Mombasa na jumuiya yenye nguvu ya teknolojia',
       pastEvents: 'Matukio ya Zamani',
       community: 'Jumuiya',
       venue: 'Mahali na Eneo',
@@ -897,10 +880,10 @@ export const translations = {
       rights: 'Haki zote zimehifadhiwa.',
     },
     about: {
-      title: 'Kuhusu Siku ya Django Mombasa',
+      title: 'Kuhusu Django Mombasa',
       subtitle: 'Kusherehekea Miongo Miwili ya Ubora',
       intro:
-        'Siku ya Django Mombasa ni zaidi ya tukio tu — ni sherehe ya miaka 20 ya ubunifu, jumuiya, na mfumo ambao umebadilisha maendeleo ya wavuti.',
+        'Django Mombasa ni zaidi ya tukio tu — ni sherehe ya miaka 20 ya ubunifu, jumuiya, na mfumo ambao umebadilisha maendeleo ya wavuti.',
       mission: {
         title: 'Dhamira Yetu',
         description:
@@ -918,9 +901,9 @@ export const translations = {
       },
     },
     sponsorshipPage: {
-      title: 'Shirikiana na Django Day Mombasa',
+      title: 'Shirikiana na Django Mombasa',
       subtitle:
-        'Tusaidie kufanya tukio hili liwe la maana kwa jamii. Ufadhili wako huifanya Django Day Mombasa ibaki kupatikana, yenye athari na ya kukumbukwa.',
+        'Tusaidie kufanya tukio hili liwe la maana kwa jamii. Ufadhili wako huifanya Django Mombasa ibaki kupatikana, yenye athari na ya kukumbukwa.',
       whyTitle: 'Kwa Nini Utuunge Mkono?',
       brandVisibility: {
         title: 'Mwonekano wa Chapa',
@@ -1003,10 +986,10 @@ export const translations = {
       ],
     },
     speakersPage: {
-      title: 'Django Birthday Mombasa — Maelekezo ya Maombi ya Wasemaji',
+      title: 'Django Mombasa — Maelekezo ya Maombi ya Wasemaji',
       subtitle: 'Mwito kwa Wasemaji',
       introParagraphs: [
-        'Tunawaalika wasemaji kutoka Mombasa na mfumo wa teknolojia wa Pwani kupanda jukwaani katika Django Birthday Mombasa — tukio la kusherehekea miaka 20 ya Django na kuangazia vipaji vya hapa nyumbani.',
+        'Tunawaalika wasemaji kutoka Mombasa na mfumo wa teknolojia wa Pwani kupanda jukwaani katika Django Mombasa — tukio la kusherehekea miaka 20 ya Django na kuangazia vipaji vya hapa nyumbani.',
         'Toleo hili linatoa jukwaa kwa wasanidi wanaoibuka, wapenda teknolojia, na wajenzi wa jumuiya kuonyesha kazi zao, mawazo, na uzoefu.',
       ],
       guidelinesTitle: 'Mwongozo wa Wasemaji',
@@ -1081,11 +1064,11 @@ export const translations = {
       supportMessage:
         'Tusaidie hili litokee. Muda wako ni wenye thamani kubwa kwetu, na ujuzi wako pia.',
       ctaLabel: 'Wasiliana na Chris kujitolea',
-      ctaLink: 'mailto:chris@chrisdevcode.com?subject=Kujitolea%20-%20Django%20Birthday%20Mombasa',
+      ctaLink: 'mailto:chris@chrisdevcode.com?subject=Kujitolea%20-%20Django%20Mombasa',
       ctaEmail: 'chris@chrisdevcode.com',
     },
     registrationPage: {
-      title: 'Jisajili kwa Siku ya Django Mombasa',
+      title: 'Jisajili kwa Django Mombasa',
       subtitle:
         'Hakikisha unapata nafasi yako kwa siku kamili ya kujifunza Django, mitandao, na sherehe.',
       highlightsTitle: 'Utakachopata',
@@ -1156,7 +1139,7 @@ export const translations = {
       introParagraphs: [
         'Kama jamii pana ya Django, tukio letu linawakaribisha watu wa taaluma, tamaduni, na uzoefu tofauti—wataalamu na wajitoleaji wanaosaidia, kufundisha, na kuunganisha kupitia msimbo na jamii.',
         'Utofauti ni nguvu yetu, na unatuhitaji tuwasiliane kwa subira na huruma. Miongozo hii ipo kutusaidia kuimarishana na kuhakikisha kila mtu anahisi kukaribishwa.',
-        'Kanuni hizi zinatumika kwa kila nafasi ya Django Birthday Mombasa—katika eneo la tukio, mtandaoni, na popote jumuiya yetu inakutana. Tabia nje ya maeneo haya bado inaweza kuathiri ushiriki wako.',
+        'Kanuni hizi zinatumika kwa kila nafasi ya Django Mombasa—katika eneo la tukio, mtandaoni, na popote jumuiya yetu inakutana. Tabia nje ya maeneo haya bado inaweza kuathiri ushiriki wako.',
       ],
       principlesTitle: 'Tunavyotarajia Kuishi',
       principles: [

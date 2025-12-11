@@ -22,8 +22,8 @@ export function Countdown() {
 
   useEffect(() => {
     setMounted(true)
-    // Event date: December 5, 2025 at 9:30 AM EAT (UTC+3)
-    const eventDate = new Date("2025-12-05T06:30:00Z").getTime()
+    // Event date: February 7, 2026 at 9:30 AM EAT (UTC+3)
+    const eventDate = new Date("2026-02-07T06:30:00Z").getTime()
 
     const calculateTimeLeft = () => {
       const now = new Date().getTime()

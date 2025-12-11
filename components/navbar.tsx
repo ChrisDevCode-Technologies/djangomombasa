@@ -70,7 +70,7 @@ export function Navbar() {
               isHomePage ? "text-primary-foreground dark:text-foreground" : "text-primary dark:text-foreground",
             )}
           >
-            Django Day Mombasa
+            Django Mombasa
           </Link>
 
           {/* Desktop Navigation */}

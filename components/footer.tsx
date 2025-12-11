@@ -30,7 +30,7 @@ export function Footer() {
                 />
               )}
             </div>
-            <h3 className="text-3xl font-bold">Django Day Mombasa</h3>
+            <h3 className="text-3xl font-bold">Django Mombasa</h3>
             <p className="text-primary-foreground/80 text-pretty">{t.footer.tagline}</p>
           </div>
 

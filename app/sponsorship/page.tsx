@@ -76,7 +76,7 @@ export default function SponsorshipPage() {
               <h2 className="text-3xl font-bold">{t.sponsorshipPage.readyTitle}</h2>
               <p className="text-primary-foreground/90 max-w-2xl mx-auto">{t.sponsorshipPage.readyDescription}</p>
               <Button size="lg" variant="secondary" className="gap-2" asChild>
-                <a href="mailto:chris@chrisdevcode.com?subject=Sponsorship%20-%20Django%20Day%20Mombasa">
+                <a href="mailto:chris@chrisdevcode.com?subject=Sponsorship%20-%20Django%20Mombasa">
                   <Mail className="h-5 w-5" />
                   {t.sponsorshipPage.contactBtn}
                 </a>

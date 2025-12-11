@@ -1,4 +1,4 @@
-# Django Birthday Mombasa
+# Django Mombasa
 [![DjangoDayMombasa Web CI](https://github.com/ChrisDevCode-Technologies/djangodaymombasa/actions/workflows/nextjs.yml/badge.svg)](https://github.com/ChrisDevCode-Technologies/djangodaymombasa/actions/workflows/nextjs.yml)
 [![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://djangobirthdaymombasa.vercel.app/)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
