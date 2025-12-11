@@ -39,6 +39,7 @@ export function Navbar() {
   const primaryNavLinks = [
     { href: "/", label: t.nav.home },
     { href: "/about", label: t.nav.about },
+    { href: "/events", label: t.nav.events },
     { href: "/speakers", label: t.nav.speakers },
   ]
 

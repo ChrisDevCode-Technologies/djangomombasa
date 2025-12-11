@@ -3,6 +3,7 @@ export const translations = {
     nav: {
       home: 'Home',
       about: 'About',
+      events: 'Events',
       sponsorship: 'Sponsorship',
       speakers: 'Call for Speakers',
       volunteer: 'Volunteer',
@@ -213,6 +214,12 @@ export const translations = {
         },
       ],
       note: 'Detailed schedule and timings will be announced closer to the event.',
+    },
+    eventsPage: {
+      title: 'Events',
+      subtitle: 'Keep up with what the Django Mombasa community is hosting next.',
+      listTitle: 'Upcoming & planned',
+      dateLabel: 'Date',
     },
     sponsors: {
       title: 'Become a Sponsor',
@@ -585,6 +592,7 @@ export const translations = {
     nav: {
       home: 'Nyumbani',
       about: 'Kuhusu',
+      events: 'Matukio',
       sponsorship: 'Ufadhili',
       speakers: 'Wito kwa Wasemaji',
       volunteer: 'Kujitolea',
@@ -812,6 +820,12 @@ export const translations = {
         },
       ],
       note: 'Ratiba ya kina na muda utatangazwa tunapokaribia tukio.',
+    },
+    eventsPage: {
+      title: 'Matukio',
+      subtitle: 'Endelea kufahamu matukio yajayo ya jumuiya ya Django Mombasa.',
+      listTitle: 'Yanayokuja na yanayopangwa',
+      dateLabel: 'Tarehe',
     },
     sponsors: {
       title: 'Kuwa Mfadhili',
