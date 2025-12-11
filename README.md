@@ -7,6 +7,7 @@
 
 Celebrating 20 years of Django with the Mombasa community. This site provides event details, sponsorship information, registration instructions, volunteer coordination, and speaker guidelines in both English and Kiswahili.
 
+
 ---
 
 ## Table of Contents
