@@ -39,7 +39,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       {isPromptVisible && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70 px-4">
           <div className="w-full max-w-md rounded-2xl border border-border/60 bg-card/95 p-8 text-center shadow-2xl backdrop-blur">
-            <h2 className="text-2xl font-semibold text-foreground">Karibu Django Day Mombasa</h2>
+            <h2 className="text-2xl font-semibold text-foreground">Karibu Django Mombasa</h2>
             <p className="mt-3 text-sm text-foreground/80">
               Tungependa kuendelea katika Kiswahili au ungependa kubadilisha hadi Kiingereza?
             </p>
