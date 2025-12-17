@@ -6,64 +6,57 @@ title: Goldydocs
   .td-heading-self-link {
     display: none;
   }
+  #td-cover-block-0 {
+    background-image: url("/images/djangoMombasa.png") !important;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
 </style>
 
-{{< blocks/cover title="Welcome to Goldydocs: A Docsy Example Project!" image_anchor="top" height="full" >}}
+{{< blocks/cover title="djangoMombasa" image_anchor="top" height="full" >}}
 
-<a class="btn btn-lg btn-primary me-3 mb-4" href="/docs/">
-  Learn More <i class="fas fa-arrow-alt-circle-right ms-2"></i>
+<a class="btn btn-lg btn-primary me-3 mb-4" href="/events/">
+  View Events <i class="fas fa-calendar-alt ms-2"></i>
 </a>
-<a class="btn btn-lg btn-secondary me-3 mb-4" href="https://github.com/google/docsy-example">
-  Download <i class="fab fa-github ms-2 "></i>
+<a class="btn btn-lg btn-secondary me-3 mb-4" href="https://github.com/ChrisDevCode-Technologies/djangomombasa">
+  Contribute <i class="fab fa-github ms-2 "></i>
 </a>
-<p class="lead mt-5">Porridge temperature assessment &mdash; in the cloud!</p>
+<p class="lead mt-5">A Mombasa &mdash; python Community</p>
 
-{{< blocks/link-down color="info" >}} {{< /blocks/cover >}}
+{{< blocks/link-down color="info" >}}
+{{< /blocks/cover >}}
 
 {{% blocks/lead color="primary" %}}
 
-Goldydocs provides a single web UI providing visibility into porridge
-temperature, chair size, and bed softness metrics! You can even find out who's
-been eating **your** porridge.
-
-(Sadly, Goldydocs isn't a real project, but you can use this site as an example
-to create your own real websites with [Docsy](https://docsy.dev))
+Django Mombasa is a technically focused developer community centered on the
+Django ecosystem. The community primarily explores Django and its surrounding
+tooling while extensively covering Python based technologies, frameworks, and
+best practices.
 
 {{% /blocks/lead %}}
 
+
+{{% blocks/section type="row text-center" %}}
+
+Django Mombasa is not limited to specific tools or stacks and
+remains open to any software development technologies that complement Python,
+backend development, and modern software engineering.
+
+{{% /blocks/section %}}
+
 {{% blocks/section color="white" type="row" %}}
 
-{{% blocks/feature icon="fa-lightbulb" title="New chair metrics!" %}}
+{{% blocks/feature icon="fa-calendar-alt" title="Community Kickoff: Django Mombasa" url="/events/2025-02-01-community-kickoff/" %}}
 
-The Goldydocs UI now shows chair size metrics by default.
-
-Please follow this space for updates!
+Launch meetup introducing the community, local projects, and the 2025 roadmap.
 
 {{% /blocks/feature %}}
 
-{{% blocks/feature icon="fab fa-github" title="Contributions welcome!" url="https://github.com/google/docsy-example" %}}
+{{% blocks/feature icon="fa-chalkboard-teacher" title="Django REST APIs Workshop" url="/events/2025-03-15-api-workshop/" %}}
 
-We do a [Pull Request](https://github.com/google/docsy-example/pulls)
-contributions workflow on **GitHub**. New users are always welcome!
-
-{{% /blocks/feature %}}
-
-{{% blocks/feature icon="fab fa-x-twitter" title="Follow us on X!" url="https://x.com/docsydocs" %}}
-
-For announcement of latest features etc.
+Hands-on session covering Django REST Framework, API design, and testing.
 
 {{% /blocks/feature %}}
-
-{{% /blocks/section %}}
-
-{{% blocks/section type="row text-center" %}}
-
-# This is the second section
-
-{{% /blocks/section %}}
-
-{{% blocks/section type="row text-center" %}}
-
-# This is the another section with center alignment
 
 {{% /blocks/section %}}
