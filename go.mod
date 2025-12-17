@@ -1,5 +1,5 @@
-module github.com/me/my-new-site
+module github.com/google/docsy-example
 
-go 1.25.5
+go 1.12
 
-require github.com/google/docsy v0.13.0 // indirect
+require github.com/google/docsy v0.13.0
