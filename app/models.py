@@ -1,4 +1,33 @@
-from django.db import models
+from django.db import models, transaction
+
+
+class MemberIdSequence(models.Model):
+    """
+    Singleton table to track the next member ID number.
+    Uses select_for_update() for race-safe ID generation.
+    """
+    next_number = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name = 'Member ID Sequence'
+        verbose_name_plural = 'Member ID Sequence'
+
+    @classmethod
+    def get_next_id(cls):
+        """
+        Atomically get and increment the next member ID.
+        Returns a formatted member ID string (e.g., 'DM-042').
+        """
+        with transaction.atomic():
+            # Lock the sequence row for update
+            seq, created = cls.objects.select_for_update().get_or_create(
+                pk=1,
+                defaults={'next_number': 0}
+            )
+            current = seq.next_number
+            seq.next_number = current + 1
+            seq.save(update_fields=['next_number'])
+        return f'DM-{current:03d}'
 
 
 class Tag(models.Model):
@@ -64,9 +93,7 @@ class Member(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.member_id:
-            last = Member.objects.order_by('-id').first()
-            next_num = 0 if last is None else last.id
-            self.member_id = f'DM-{next_num:03d}'
+            self.member_id = MemberIdSequence.get_next_id()
         super().save(*args, **kwargs)
 
     def __str__(self):
