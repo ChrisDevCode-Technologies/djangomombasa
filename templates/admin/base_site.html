@@ -1,0 +1,19 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | Django Mombasa Admin{% endblock %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+{% endblock %}
+
+{% block branding %}
+    <h1 id="site-name">
+        <a href="{% url 'admin:index' %}">
+            <img src="{% static 'images/logo.jpg' %}" alt="Django Mombasa" class="admin-logo">
+            Django Mombasa
+        </a>
+    </h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

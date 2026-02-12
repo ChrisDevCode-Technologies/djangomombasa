@@ -1,0 +1,117 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block title %}Join the Community | Django Mombasa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .join-header {
+        background-color: var(--dm-primary);
+        padding-top: 72px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<section class="join-header text-white text-center py-5">
+    <div class="container py-4">
+        <h1 class="fw-bold mb-2">Join Django Mombasa</h1>
+        <p style="opacity: 0.8;">Become part of a community that learns, builds, shares, and grows together.</p>
+    </div>
+</section>
+
+<!-- Form -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                <div class="card">
+                    <div class="card-body p-4">
+                        <form method="post" novalidate>
+                            {% csrf_token %}
+
+                            <!-- Name -->
+                            <div class="mb-3">
+                                <label for="id_name" class="form-label">Name <span class="text-danger">*</span></label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                <div class="invalid-feedback d-block">{{ form.name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Email -->
+                            <div class="mb-3">
+                                <label for="id_email" class="form-label">Email <span class="text-danger">*</span></label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                <div class="invalid-feedback d-block">{{ form.email.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Phone -->
+                            <div class="mb-3">
+                                <label for="id_phone" class="form-label">Phone</label>
+                                {{ form.phone }}
+                                {% if form.phone.errors %}
+                                <div class="invalid-feedback d-block">{{ form.phone.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Gender & Year of Birth -->
+                            <div class="row mb-3">
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                    <label for="id_gender" class="form-label">Gender <span class="text-danger">*</span></label>
+                                    {{ form.gender }}
+                                    {% if form.gender.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.gender.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-sm-6">
+                                    <label for="id_year_of_birth" class="form-label">Year of Birth</label>
+                                    {{ form.year_of_birth }}
+                                    {% if form.year_of_birth.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.year_of_birth.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Experience Level & Primary Language -->
+                            <div class="row mb-4">
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                    <label for="id_experience_level" class="form-label">Experience Level <span class="text-danger">*</span></label>
+                                    {{ form.experience_level }}
+                                    {% if form.experience_level.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.experience_level.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-sm-6">
+                                    <label for="id_primary_language" class="form-label">Primary Language <span class="text-danger">*</span></label>
+                                    {{ form.primary_language }}
+                                    {% if form.primary_language.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.primary_language.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 btn-lg">Join the Community</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

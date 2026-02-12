@@ -1,0 +1,66 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block title %}{{ page.title }} | Django Mombasa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        background-color: var(--dm-primary);
+        padding-top: 72px;
+    }
+    .page-content h1, .page-content h2, .page-content h3,
+    .page-content h4, .page-content h5, .page-content h6 {
+        color: var(--dm-primary);
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+    .page-content p {
+        margin-bottom: 1rem;
+        line-height: 1.7;
+    }
+    .page-content ul, .page-content ol {
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+    }
+    .page-content a {
+        color: var(--dm-secondary);
+    }
+    .page-content table {
+        width: 100%;
+        margin-bottom: 1rem;
+        border-collapse: collapse;
+    }
+    .page-content table th,
+    .page-content table td {
+        padding: 0.5rem;
+        border: 1px solid var(--dm-border);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<section class="page-header text-white text-center py-5">
+    <div class="container py-4">
+        <h1 class="fw-bold mb-0">{{ page.title }}</h1>
+    </div>
+</section>
+
+<!-- Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="page-content">
+                    {{ page.content|safe }}
+                </div>
+                <hr class="my-4">
+                <p class="text-muted small">Last updated: {{ page.updated_at|date:"F j, Y" }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

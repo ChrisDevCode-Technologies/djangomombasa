@@ -1,3 +1,96 @@
 from django.db import models
 
-# Create your models here.
+
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Event(models.Model):
+    name = models.CharField(max_length=200)
+    tags = models.ManyToManyField(Tag, blank=True, related_name='events')
+    date = models.DateTimeField()
+    rsvp_link = models.URLField(blank=True)
+    details = models.TextField()
+
+    class Meta:
+        ordering = ['date']
+
+    def __str__(self):
+        return self.name
+
+
+class Member(models.Model):
+    class Gender(models.TextChoices):
+        MALE = 'male', 'Male'
+        FEMALE = 'female', 'Female'
+
+    class ExperienceLevel(models.TextChoices):
+        JUNIOR = 'junior', 'Junior'
+        MID = 'mid', 'Mid'
+        SENIOR = 'senior', 'Senior'
+        FOR_FUN = 'for_fun', 'For Fun'
+
+    class PrimaryLanguage(models.TextChoices):
+        PYTHON = 'python', 'Python'
+        JAVASCRIPT = 'javascript', 'JavaScript'
+        TYPESCRIPT = 'typescript', 'TypeScript'
+        JAVA = 'java', 'Java'
+        CSHARP = 'csharp', 'C#'
+        CPP = 'cpp', 'C++'
+        C = 'c', 'C'
+        GO = 'go', 'Go'
+        RUST = 'rust', 'Rust'
+        PHP = 'php', 'PHP'
+        RUBY = 'ruby', 'Ruby'
+        SWIFT = 'swift', 'Swift'
+        KOTLIN = 'kotlin', 'Kotlin'
+        DART = 'dart', 'Dart'
+        R = 'r', 'R'
+        SQL = 'sql', 'SQL'
+        OTHER = 'other', 'Other'
+
+    member_id = models.CharField(max_length=10, unique=True, editable=False, default='')
+    name = models.CharField(max_length=200)
+    email = models.EmailField(unique=True)
+    phone = models.CharField(max_length=20, blank=True)
+    gender = models.CharField(max_length=10, choices=Gender.choices)
+    year_of_birth = models.PositiveSmallIntegerField(null=True, blank=True)
+    experience_level = models.CharField(max_length=10, choices=ExperienceLevel.choices)
+    primary_language = models.CharField(max_length=20, choices=PrimaryLanguage.choices)
+    joined_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.member_id:
+            last = Member.objects.order_by('-id').first()
+            next_num = 0 if last is None else last.id
+            self.member_id = f'DM-{next_num:03d}'
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f'{self.member_id} — {self.name}'
+
+
+class Page(models.Model):
+    title = models.CharField(max_length=200)
+    slug = models.SlugField(unique=True)
+    content = models.TextField()
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.title
+
+
+class SocialLink(models.Model):
+    name = models.CharField(max_length=50)
+    icon_class = models.CharField(max_length=100, help_text='Bootstrap Icons class, e.g. "bi bi-linkedin"')
+    url = models.URLField()
+    order = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return self.name
