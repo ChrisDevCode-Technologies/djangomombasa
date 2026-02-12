@@ -7,6 +7,4 @@ django-summernote==0.8.20.0
 sqlparse==0.5.5
 tablib==3.9.0
 webencodings==0.5.1
-whitenoise==6.8.2
-gunicorn==23.0.0
-psycopg[binary]==3.2.13
+whitenoise==6.11.0
