@@ -12,7 +12,7 @@ Django Mombasa is a community website for the Django Mombasa developer community
 # Activate virtual environment
 source .venv/bin/activate
 
-# Run development server
+# Run development server (uses config.settings.dev by default)
 python manage.py runserver
 
 # Run migrations
@@ -32,29 +32,49 @@ python manage.py createsuperuser
 
 # Django shell
 python manage.py shell
+
+# Collect static files (required before production deployment)
+python manage.py collectstatic --noinput
 ```
 
 ## Architecture
 
 ```
-config/             Django project configuration (settings, urls, wsgi/asgi)
-app/                Main application (models, views, forms, admin, context processors)
-templates/          HTML templates
-  layout/           Shared components (base.html, navbar.html, footer.html)
-  admin/            Admin template overrides (base_site.html)
+config/
+  settings/
+    __init__.py       Package marker
+    base.py           Common settings (apps, middleware, templates, DB, etc.)
+    dev.py            Development settings (DEBUG=True, no env vars required)
+    prod.py           Production settings (DEBUG=False, strict env var requirements)
+  urls.py             Root URL configuration
+  wsgi.py             WSGI entrypoint (defaults to prod settings)
+  asgi.py             ASGI entrypoint (defaults to prod settings)
+app/                  Main application (models, views, forms, admin, context processors)
+templates/
+  layout/             Shared components (base.html, navbar.html, footer.html)
+  admin/              Admin template overrides (base_site.html)
 static/
-  css/              styles.css (site theme), admin.css (admin branding)
-  images/           logo.jpg
+  css/                styles.css (site theme), admin.css (admin branding)
+  images/             logo.jpg
+Procfile              PaaS deployment config (Heroku/Dokku)
 ```
 
-The settings module is `config.settings`. URLs are routed through `config.urls` → `app.urls`.
+## Settings Structure
+
+| Module | Purpose | Usage |
+|--------|---------|-------|
+| `config.settings.dev` | Local development | `manage.py` default, no env vars needed |
+| `config.settings.prod` | Production | `wsgi.py`/`asgi.py` default, requires env vars |
+
+Override with: `DJANGO_SETTINGS_MODULE=config.settings.prod python manage.py ...`
 
 ## Models
 
+- **MemberIdSequence** — singleton table for race-safe member ID generation
 - **Tag** — event categorisation (name)
 - **Event** — community events (name, date, rsvp_link, details, tags M2M)
-- **Member** — registered members with auto-generated ID (DM-XXX format). Fields: name, email, phone, gender, year_of_birth, experience_level, primary_language
-- **Page** — CMS pages edited with Summernote WYSIWYG (title, slug, content, updated_at). Used for Data Protection, Code of Conduct, etc.
+- **Member** — registered members with auto-generated ID (DM-XXX format). Fields: name, email, phone, gender, year_of_birth, experience_level, primary_language. ID generated via `MemberIdSequence.get_next_id()` with `select_for_update()` locking.
+- **Page** — CMS pages edited with Summernote WYSIWYG (title, slug, content, updated_at)
 - **SocialLink** — social media links rendered in footer (name, icon_class, url, order)
 
 ## URL Structure
@@ -78,6 +98,8 @@ The settings module is `config.settings`. URLs are routed through `config.urls` 
 
 - **django-import-export** — CSV/Excel import/export for all models in admin
 - **django-summernote** — WYSIWYG editor for Page content in admin
+- **whitenoise** — Serves static files in production with compression and caching
+- **gunicorn** — Production WSGI server
 
 ## Key Patterns
 
@@ -87,16 +109,51 @@ The settings module is `config.settings`. URLs are routed through `config.urls` 
 - All other admin classes use `ImportExportModelAdmin` with `ModelResource` classes
 - Admin is branded with project logo and colors (`static/css/admin.css`, `templates/admin/base_site.html`)
 - Forms use Bootstrap 5 CSS classes (`form-control`, `form-select`)
-- Member ID auto-generates on save: DM-000, DM-001, etc.
+- Member ID generation is race-safe using `MemberIdSequence` with atomic transactions
+
+## Environment Variables
+
+### Development (config.settings.dev)
+No environment variables required. Sensible defaults are provided.
+
+### Production (config.settings.prod)
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `SECRET_KEY` | Yes | Django secret key |
+| `ALLOWED_HOSTS` | Yes | Comma-separated hosts (e.g., `example.com,www.example.com`) |
+| `CSRF_TRUSTED_ORIGINS` | No | Comma-separated origins with scheme (e.g., `https://example.com`) |
+| `EMAIL_HOST_PASSWORD` | No | Gmail app password for SMTP |
+
+See `.env.example` for full documentation.
 
 ## Configuration Notes
 
 - **Database**: SQLite (`db.sqlite3`)
 - **Timezone**: Africa/Nairobi
-- **Email**: Gmail SMTP (`djangomombasake@gmail.com`), password via `EMAIL_HOST_PASSWORD` env var
-- **Static files**: `STATICFILES_DIRS = [BASE_DIR / 'static']`, `STATIC_ROOT = BASE_DIR / 'staticfiles'`
+- **Email**: Gmail SMTP (`djangomombasake@gmail.com`) in prod, console backend in dev
+- **Static files**: WhiteNoise middleware serves compressed static files in production
 - **Media files**: `MEDIA_ROOT = BASE_DIR / 'media'` (Summernote uploads)
 - **Admin**: `/admin/` — branded with project logo and color scheme
+
+## Deployment
+
+```bash
+# Set environment variables
+export SECRET_KEY=your-production-key
+export ALLOWED_HOSTS=example.com,www.example.com
+export CSRF_TRUSTED_ORIGINS=https://example.com
+
+# Collect static files
+python manage.py collectstatic --noinput
+
+# Run migrations
+python manage.py migrate --noinput
+
+# Start server
+gunicorn config.wsgi
+```
+
+For PaaS (Heroku/Dokku), the `Procfile` handles collectstatic and migrations in the release phase.
 
 ## Branding Colors
 
