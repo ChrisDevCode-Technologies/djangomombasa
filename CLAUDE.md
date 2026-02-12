@@ -37,6 +37,26 @@ python manage.py shell
 python manage.py collectstatic --noinput
 ```
 
+## Docker Commands
+
+```bash
+# Build and start production containers (PostgreSQL + Django/Gunicorn)
+docker compose up --build -d
+
+# View logs
+docker compose logs -f web
+
+# Run management commands inside the container
+docker compose exec web python manage.py createsuperuser
+docker compose exec web python manage.py shell
+
+# Stop containers
+docker compose down
+
+# Stop and remove volumes (deletes database data)
+docker compose down -v
+```
+
 ## Architecture
 
 ```
@@ -44,8 +64,8 @@ config/
   settings/
     __init__.py       Package marker
     base.py           Common settings (apps, middleware, templates, DB, etc.)
-    dev.py            Development settings (DEBUG=True, no env vars required)
-    prod.py           Production settings (DEBUG=False, strict env var requirements)
+    dev.py            Development settings (DEBUG=True, SQLite, no env vars required)
+    prod.py           Production settings (DEBUG=False, PostgreSQL, strict env var requirements)
   urls.py             Root URL configuration
   wsgi.py             WSGI entrypoint (defaults to prod settings)
   asgi.py             ASGI entrypoint (defaults to prod settings)
@@ -56,15 +76,18 @@ templates/
 static/
   css/                styles.css (site theme), admin.css (admin branding)
   images/             logo.jpg
+Dockerfile            Production container image (python:3.14-slim + gunicorn)
+docker-compose.yml    Docker Compose (postgres:17-alpine + web service)
+entrypoint.sh         Container entrypoint (migrate + gunicorn)
 Procfile              PaaS deployment config (Heroku/Dokku)
 ```
 
 ## Settings Structure
 
-| Module | Purpose | Usage |
-|--------|---------|-------|
-| `config.settings.dev` | Local development | `manage.py` default, no env vars needed |
-| `config.settings.prod` | Production | `wsgi.py`/`asgi.py` default, requires env vars |
+| Module | Purpose | Database | Usage |
+|--------|---------|----------|-------|
+| `config.settings.dev` | Local development | SQLite | `manage.py` default, no env vars needed |
+| `config.settings.prod` | Production / Docker | PostgreSQL | `wsgi.py`/`asgi.py` default, requires env vars |
 
 Override with: `DJANGO_SETTINGS_MODULE=config.settings.prod python manage.py ...`
 
@@ -100,6 +123,7 @@ Override with: `DJANGO_SETTINGS_MODULE=config.settings.prod python manage.py ...
 - **django-summernote** — WYSIWYG editor for Page content in admin
 - **whitenoise** — Serves static files in production with compression and caching
 - **gunicorn** — Production WSGI server
+- **psycopg** — PostgreSQL database adapter (production)
 
 ## Key Patterns
 
@@ -123,12 +147,18 @@ No environment variables required. Sensible defaults are provided.
 | `ALLOWED_HOSTS` | Yes | Comma-separated hosts (e.g., `example.com,www.example.com`) |
 | `CSRF_TRUSTED_ORIGINS` | No | Comma-separated origins with scheme (e.g., `https://example.com`) |
 | `EMAIL_HOST_PASSWORD` | No | Gmail app password for SMTP |
+| `DB_NAME` | No | PostgreSQL database name (default: `djangomombasa`) |
+| `DB_USER` | No | PostgreSQL user (default: `postgres`) |
+| `DB_PASSWORD` | Yes* | PostgreSQL password (*required when using Docker/PostgreSQL) |
+| `DB_HOST` | No | Database host (default: `localhost`, `db` in Docker Compose) |
+| `DB_PORT` | No | Database port (default: `5432`) |
 
 See `.env.example` for full documentation.
 
 ## Configuration Notes
 
-- **Database**: SQLite (`db.sqlite3`)
+- **Database (dev)**: SQLite (`db.sqlite3`)
+- **Database (prod)**: PostgreSQL via environment variables in `config/settings/prod.py`
 - **Timezone**: Africa/Nairobi
 - **Email**: Gmail SMTP (`djangomombasake@gmail.com`) in prod, console backend in dev
 - **Static files**: WhiteNoise middleware serves compressed static files in production
@@ -137,23 +167,35 @@ See `.env.example` for full documentation.
 
 ## Deployment
 
+### Docker (Recommended)
+
+```bash
+# Copy and configure environment variables
+cp .env.example .env
+# Edit .env with production values
+
+# Build and start
+docker compose up --build -d
+
+# Create superuser
+docker compose exec web python manage.py createsuperuser
+```
+
+The Docker setup includes:
+- `Dockerfile` — Builds the app image, installs dependencies, runs collectstatic
+- `docker-compose.yml` — PostgreSQL 17 + Django/Gunicorn with health checks
+- `entrypoint.sh` — Runs migrations then starts Gunicorn (3 workers, port 8000)
+
+### PaaS (Heroku/Dokku)
+
 ```bash
 # Set environment variables
 export SECRET_KEY=your-production-key
 export ALLOWED_HOSTS=example.com,www.example.com
 export CSRF_TRUSTED_ORIGINS=https://example.com
-
-# Collect static files
-python manage.py collectstatic --noinput
-
-# Run migrations
-python manage.py migrate --noinput
-
-# Start server
-gunicorn config.wsgi
 ```
 
-For PaaS (Heroku/Dokku), the `Procfile` handles collectstatic and migrations in the release phase.
+The `Procfile` handles collectstatic and migrations in the release phase.
 
 ## Branding Colors
 
