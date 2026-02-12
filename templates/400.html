@@ -1,0 +1,14 @@
+{% extends "layout/base.html" %}
+
+{% block title %}400 Bad Request | Django Mombasa{% endblock %}
+
+{% block content %}
+<section class="d-flex align-items-center justify-content-center flex-grow-1 py-5" style="min-height: 60vh;">
+    <div class="container text-center py-5">
+        <h1 class="display-1 fw-bold" style="color: var(--dm-primary);">400</h1>
+        <h2 class="fw-semibold mb-3">Bad Request</h2>
+        <p class="text-muted mb-4">The server could not understand your request. Please check and try again.</p>
+        <a href="/" class="btn btn-primary btn-lg">Back to Home</a>
+    </div>
+</section>
+{% endblock %}
