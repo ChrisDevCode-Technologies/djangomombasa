@@ -1,0 +1,106 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block title %}Membership | Django Mombasa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .membership-header {
+        background-color: var(--dm-primary);
+        padding-top: 72px;
+    }
+    .benefit-icon {
+        width: 48px;
+        height: 48px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background-color: rgba(13, 63, 46, 0.1);
+        color: var(--dm-primary);
+        font-size: 1.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<section class="membership-header text-white text-center py-5">
+    <div class="container py-4">
+        <h1 class="fw-bold mb-2">Membership</h1>
+        <p class="mb-0" style="opacity: 0.8;">Join a growing community of developers in Mombasa and beyond.</p>
+    </div>
+</section>
+
+<!-- What You Get -->
+<section class="py-5">
+    <div class="container py-3">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Why Become a Member?</h2>
+            <p class="text-muted">Membership is free and open to everyone — here's what you get.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4 text-center">
+                <div class="benefit-icon mx-auto mb-3"><i class="bi bi-people"></i></div>
+                <h5 class="fw-semibold">Community Access</h5>
+                <p class="text-muted">Connect with developers across Mombasa. Share ideas, ask questions, and collaborate on projects together.</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="benefit-icon mx-auto mb-3"><i class="bi bi-calendar-check"></i></div>
+                <h5 class="fw-semibold">Events & Workshops</h5>
+                <p class="text-muted">Get early access to meetups, study groups, bootcamps, and hands-on workshops hosted by the community.</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="benefit-icon mx-auto mb-3"><i class="bi bi-graph-up-arrow"></i></div>
+                <h5 class="fw-semibold">Peer Learning</h5>
+                <p class="text-muted">Grow your skills through peer-to-peer learning. Teach what you know, learn what you don't — everyone has something to offer.</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="benefit-icon mx-auto mb-3"><i class="bi bi-person-badge"></i></div>
+                <h5 class="fw-semibold">Member ID</h5>
+                <p class="text-muted">Every member receives a unique Django Mombasa Member ID (DM-XXX) as part of the community.</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="benefit-icon mx-auto mb-3"><i class="bi bi-code-slash"></i></div>
+                <h5 class="fw-semibold">All Languages Welcome</h5>
+                <p class="text-muted">Our roots are in Django and Python, but we welcome developers working with any language, framework, or tool.</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="benefit-icon mx-auto mb-3"><i class="bi bi-shield-check"></i></div>
+                <h5 class="fw-semibold">Your Data, Your Control</h5>
+                <p class="text-muted">We respect your privacy. You can request your data or ask for deletion at any time through our member lookup.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTAs -->
+<section class="py-5" style="background-color: var(--dm-white);">
+    <div class="container py-3">
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-5">
+                <div class="card h-100 text-center">
+                    <div class="card-body p-4 d-flex flex-column">
+                        <div class="benefit-icon mx-auto mb-3"><i class="bi bi-person-plus"></i></div>
+                        <h4 class="fw-bold mb-2">Join the Community</h4>
+                        <p class="text-muted mb-4">New here? Sign up in under a minute and get your member ID.</p>
+                        <a href="{% url 'app:join' %}" class="btn btn-primary btn-lg mt-auto">Register Now</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="card h-100 text-center">
+                    <div class="card-body p-4 d-flex flex-column">
+                        <div class="benefit-icon mx-auto mb-3"><i class="bi bi-search"></i></div>
+                        <h4 class="fw-bold mb-2">Member Lookup</h4>
+                        <p class="text-muted mb-4">Already a member? Look up your details or manage your data.</p>
+                        <a href="{% url 'app:lookup' %}" class="btn btn-outline-primary btn-lg mt-auto">Look Up</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

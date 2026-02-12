@@ -1,0 +1,160 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block title %}Django Mombasa — Learn. Build. Share. Grow.{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero */
+    .hero {
+        background-color: var(--dm-primary);
+        min-height: 90vh;
+    }
+    .hero-logo {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border: 3px solid rgba(255, 255, 255, 0.2);
+    }
+    .hero .tagline {
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        font-size: 0.95rem;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* Section spacing */
+    .section-heading {
+        position: relative;
+        display: inline-block;
+    }
+    .section-heading::after {
+        content: "";
+        display: block;
+        width: 50px;
+        height: 3px;
+        background-color: var(--dm-secondary);
+        margin-top: 0.5rem;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ===== HERO ===== -->
+<header class="hero d-flex align-items-center text-white text-center" style="padding-top: 72px;">
+    <div class="container py-5">
+        <img src="{% static 'images/logo.jpg' %}" alt="Django Mombasa logo" class="hero-logo rounded-circle mb-4">
+        <h1 class="display-4 fw-bold mb-2">Django Mombasa</h1>
+        <p class="tagline mb-4">Learn. Build. Share. Grow.</p>
+        <p class="lead mx-auto mb-4" style="max-width: 600px; opacity: 0.85;">
+            A Mombasa-based tech community focused on learning together, building real projects, and sharing knowledge. Whether you write Python, JavaScript, or anything in between — you belong here.
+        </p>
+        <div class="d-flex flex-wrap justify-content-center gap-3">
+            <a href="{% url 'app:join' %}" class="btn btn-light btn-lg fw-semibold px-4" style="color: var(--dm-primary);">Join the Community</a>
+            <a href="{% url 'app:events' %}" class="btn btn-outline-light btn-lg px-4">View Upcoming Events</a>
+        </div>
+    </div>
+</header>
+
+<!-- ===== ABOUT ===== -->
+<section id="about" class="py-5">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="section-heading fw-bold mx-auto mb-4" style="display: inline-block;">About Us</h2>
+                <p class="mb-3" style="color: var(--dm-dark-text);">
+                    Django Mombasa exists to create a space where developers of all experience levels come together to grow. We believe in peer-to-peer learning — the best way to learn is by building alongside others, asking questions, and teaching what you know.
+                </p>
+                <p style="color: var(--dm-muted-text);">
+                    Our focus started with Django and Python, but our doors are open to anyone passionate about technology. Whether you're writing your first line of code or shipping production applications, there's a seat for you at the table.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== EVENTS ===== -->
+<section id="events" class="py-5" style="background-color: var(--dm-white);">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h2 class="section-heading fw-bold mx-auto" style="display: inline-block;">Upcoming Events</h2>
+        </div>
+        <div class="row g-4">
+            {% for event in events %}
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            {% for tag in event.tags.all %}
+                            <span class="badge bg-primary">{{ tag.name }}</span>
+                            {% endfor %}
+                        </div>
+                        <h5 class="card-title fw-semibold">{{ event.name }}</h5>
+                        <p class="text-muted small mb-2"><i class="bi bi-calendar-event me-1"></i> {{ event.date|date:"F j, Y" }}</p>
+                        <p class="card-text">{{ event.details }}</p>
+                        {% if event.rsvp_link %}
+                        <a href="{{ event.rsvp_link }}" class="btn btn-outline-primary mt-auto" style="width: fit-content;" target="_blank" rel="noopener">RSVP</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-4">
+                <p class="text-muted mb-0">No upcoming events right now. Check back soon!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- ===== COMMUNITY VALUES ===== -->
+<section class="py-5">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h2 class="section-heading fw-bold mx-auto" style="display: inline-block;">Our Community Standards</h2>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-5">
+                <div class="card h-100">
+                    <div class="card-body p-4 d-flex flex-column">
+                        <div class="mb-3">
+                            <i class="bi bi-shield-lock" style="font-size: 2rem; color: var(--dm-primary);"></i>
+                        </div>
+                        <h5 class="fw-bold">Data Protection</h5>
+                        <p class="text-muted">Your privacy matters. We only collect what's needed, never share your data with third parties, and give you full control — including the right to access, correct, or delete your information at any time.</p>
+                        <a href="{% url 'app:page_detail' 'data-protection' %}" class="btn btn-outline-primary mt-auto" style="width: fit-content;">Read Full Policy</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="card h-100">
+                    <div class="card-body p-4 d-flex flex-column">
+                        <div class="mb-3">
+                            <i class="bi bi-people" style="font-size: 2rem; color: var(--dm-primary);"></i>
+                        </div>
+                        <h5 class="fw-bold">Code of Conduct</h5>
+                        <p class="text-muted">We're building a welcoming space for everyone. Our Code of Conduct ensures all members are treated with respect, kindness, and fairness — whether online or at in-person events.</p>
+                        <a href="{% url 'app:page_detail' 'code-of-conduct' %}" class="btn btn-outline-primary mt-auto" style="width: fit-content;">Read Full Code</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== CONNECT ===== -->
+<section id="connect" class="py-5">
+    <div class="container py-4 text-center">
+        <h2 class="section-heading fw-bold mx-auto mb-4" style="display: inline-block;">Connect With Us</h2>
+        <p class="mb-4" style="color: var(--dm-muted-text);">Follow us, join the conversation, and stay in the loop.</p>
+        <div class="d-flex flex-wrap justify-content-center gap-3">
+            {% for link in social_links %}
+            <a href="{{ link.url }}" class="social-icon" aria-label="{{ link.name }}" target="_blank" rel="noopener"><i class="{{ link.icon_class }}"></i></a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}

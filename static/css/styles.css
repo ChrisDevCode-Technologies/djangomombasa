@@ -1,0 +1,197 @@
+/* ==========================================================================
+   Bootstrap 5 Color Theme Overrides — Django Mombasa
+   Only color tokens. No layout, spacing, or typography changes.
+   ========================================================================== */
+
+:root {
+    /* ── Palette tokens ── */
+    --dm-primary: #0D3F2E;
+    --dm-primary-hover: #08281D;
+    --dm-secondary: #1F6B4C;
+    --dm-bg-light: #F2F4F3;
+    --dm-white: #FFFFFF;
+    --dm-dark-text: #1A1A1A;
+    --dm-muted-text: #6B7280;
+    --dm-border: #D6DDD9;
+
+    /* ── Bootstrap 5.3 CSS variable overrides ── */
+
+    /* Primary */
+    --bs-primary: #0D3F2E;
+    --bs-primary-rgb: 13, 63, 46;
+
+    /* Secondary */
+    --bs-secondary: #1F6B4C;
+    --bs-secondary-rgb: 31, 107, 76;
+
+    /* Body */
+    --bs-body-bg: #F2F4F3;
+    --bs-body-bg-rgb: 242, 244, 243;
+    --bs-body-color: #1A1A1A;
+    --bs-body-color-rgb: 26, 26, 26;
+
+    /* Borders */
+    --bs-border-color: #D6DDD9;
+
+    /* Links */
+    --bs-link-color: #0D3F2E;
+    --bs-link-color-rgb: 13, 63, 46;
+    --bs-link-hover-color: #08281D;
+    --bs-link-hover-color-rgb: 8, 40, 29;
+
+    /* Muted / secondary text */
+    --bs-secondary-color: #6B7280;
+    --bs-secondary-color-rgb: 107, 114, 128;
+}
+
+/* ── .btn-primary ── */
+.btn-primary {
+    --bs-btn-bg: #0D3F2E;
+    --bs-btn-border-color: #0D3F2E;
+    --bs-btn-color: #FFFFFF;
+    --bs-btn-hover-bg: #08281D;
+    --bs-btn-hover-border-color: #08281D;
+    --bs-btn-hover-color: #FFFFFF;
+    --bs-btn-active-bg: #08281D;
+    --bs-btn-active-border-color: #08281D;
+    --bs-btn-active-color: #FFFFFF;
+    --bs-btn-disabled-bg: #0D3F2E;
+    --bs-btn-disabled-border-color: #0D3F2E;
+    --bs-btn-disabled-color: #FFFFFF;
+}
+
+/* ── .btn-outline-primary ── */
+.btn-outline-primary {
+    --bs-btn-color: #0D3F2E;
+    --bs-btn-border-color: #0D3F2E;
+    --bs-btn-hover-bg: #0D3F2E;
+    --bs-btn-hover-border-color: #0D3F2E;
+    --bs-btn-hover-color: #FFFFFF;
+    --bs-btn-active-bg: #08281D;
+    --bs-btn-active-border-color: #08281D;
+    --bs-btn-active-color: #FFFFFF;
+}
+
+/* ── .btn-secondary ── */
+.btn-secondary {
+    --bs-btn-bg: #1F6B4C;
+    --bs-btn-border-color: #1F6B4C;
+    --bs-btn-color: #FFFFFF;
+    --bs-btn-hover-bg: #0D3F2E;
+    --bs-btn-hover-border-color: #0D3F2E;
+    --bs-btn-hover-color: #FFFFFF;
+    --bs-btn-active-bg: #08281D;
+    --bs-btn-active-border-color: #08281D;
+    --bs-btn-active-color: #FFFFFF;
+}
+
+/* ── .btn-outline-secondary ── */
+.btn-outline-secondary {
+    --bs-btn-color: #1F6B4C;
+    --bs-btn-border-color: #1F6B4C;
+    --bs-btn-hover-bg: #1F6B4C;
+    --bs-btn-hover-border-color: #1F6B4C;
+    --bs-btn-hover-color: #FFFFFF;
+    --bs-btn-active-bg: #0D3F2E;
+    --bs-btn-active-border-color: #0D3F2E;
+    --bs-btn-active-color: #FFFFFF;
+}
+
+/* ── Alerts (primary & secondary only — success/info/warning/danger untouched) ── */
+.alert-primary {
+    --bs-alert-bg: #d4e6dd;
+    --bs-alert-border-color: #b8d5c6;
+    --bs-alert-color: #0D3F2E;
+}
+
+.alert-secondary {
+    --bs-alert-bg: #d7ede3;
+    --bs-alert-border-color: #bfe0d1;
+    --bs-alert-color: #1F6B4C;
+}
+
+/* ── Badges ── */
+.badge.bg-primary {
+    --bs-badge-color: #FFFFFF;
+}
+
+.badge.bg-secondary {
+    --bs-badge-color: #FFFFFF;
+}
+
+/* ── Cards ── */
+.card {
+    --bs-card-bg: #FFFFFF;
+    --bs-card-border-color: #D6DDD9;
+    --bs-card-color: #1A1A1A;
+}
+
+/* ── Navbar light (white bg) ── */
+.navbar-light,
+.navbar[data-bs-theme="light"] {
+    --bs-navbar-color: #1A1A1A;
+    --bs-navbar-hover-color: #0D3F2E;
+    --bs-navbar-active-color: #0D3F2E;
+    --bs-navbar-brand-color: #0D3F2E;
+    --bs-navbar-brand-hover-color: #08281D;
+}
+
+/* ── Navbar dark (primary green bg) ── */
+.navbar-dark,
+.navbar[data-bs-theme="dark"] {
+    --bs-navbar-color: rgba(255, 255, 255, 0.85);
+    --bs-navbar-hover-color: #FFFFFF;
+    --bs-navbar-active-color: #FFFFFF;
+    --bs-navbar-brand-color: #FFFFFF;
+    --bs-navbar-brand-hover-color: #FFFFFF;
+}
+
+/* ── Form controls ── */
+.form-control:focus,
+.form-select:focus {
+    border-color: #1F6B4C;
+    box-shadow: 0 0 0 0.25rem rgba(13, 63, 46, 0.25);
+}
+
+.form-check-input:checked {
+    background-color: #0D3F2E;
+    border-color: #0D3F2E;
+}
+
+/* ── Text utility helpers ── */
+.text-muted {
+    --bs-secondary-color: #6B7280 !important;
+}
+
+/* ── Social icon circles (light background — Connect section, etc.) ── */
+.social-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid var(--dm-border);
+    color: var(--dm-primary);
+    font-size: 1.15rem;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+    text-decoration: none;
+}
+
+.social-icon:hover {
+    background-color: var(--dm-primary);
+    border-color: var(--dm-primary);
+    color: #fff;
+}
+
+/* ── Footer social icons (dark background override) ── */
+footer .social-icon {
+    border-color: rgba(255, 255, 255, 0.25);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+footer .social-icon:hover {
+    background-color: #fff;
+    border-color: #fff;
+    color: var(--dm-primary);
+}

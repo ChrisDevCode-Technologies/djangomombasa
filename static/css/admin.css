@@ -1,0 +1,167 @@
+/* ==========================================================================
+   Django Admin — Django Mombasa Branding
+   Overrides Django's built-in CSS custom properties.
+   ========================================================================== */
+
+:root {
+    --primary: #1F6B4C;
+    --secondary: #0D3F2E;
+    --accent: #1F6B4C;
+    --primary-fg: #fff;
+
+    --body-bg: #F2F4F3;
+    --body-fg: #1A1A1A;
+    --body-quiet-color: #6B7280;
+
+    --header-bg: #0D3F2E;
+    --header-color: #fff;
+    --header-branding-color: #fff;
+    --header-link-color: #fff;
+
+    --breadcrumbs-fg: #0D3F2E;
+    --breadcrumbs-link-fg: #1A1A1A;
+    --breadcrumbs-bg: #e4e9e7;
+
+    --link-fg: #1F6B4C;
+    --link-hover-color: #0D3F2E;
+    --link-selected-fg: #08281D;
+
+    --hairline-color: #D6DDD9;
+    --border-color: #D6DDD9;
+
+    --button-bg: #0D3F2E;
+    --button-fg: #fff;
+    --button-hover-bg: #08281D;
+    --default-button-bg: #1F6B4C;
+    --default-button-hover-bg: #0D3F2E;
+    --close-button-bg: #6B7280;
+    --close-button-hover-bg: #4B5563;
+
+    --object-tools-bg: #1F6B4C;
+    --object-tools-hover-bg: #0D3F2E;
+
+    --delete-button-bg: #ba2121;
+    --delete-button-hover-bg: #a41515;
+
+    --message-success-bg: #d4e6dd;
+    --message-warning-bg: #ffc;
+    --message-error-bg: #ffefef;
+
+    --selected-bg: #d4e6dd;
+    --selected-row: #d4e6dd;
+}
+
+/* Dark mode overrides */
+html[data-theme="dark"] {
+    --primary: #5db88a;
+    --secondary: #3d9d6e;
+    --accent: #5db88a;
+    --primary-fg: #1a1a1a;
+
+    --body-bg: #1a1a1a;
+    --body-fg: #e8e8e8;
+    --body-quiet-color: #a0a0a0;
+
+    --header-bg: #0D3F2E;
+    --header-color: #ffffff;
+    --header-branding-color: #ffffff;
+    --header-link-color: #ffffff;
+
+    --breadcrumbs-bg: #242424;
+    --breadcrumbs-fg: #d0d0d0;
+    --breadcrumbs-link-fg: #7dd4a6;
+
+    --link-fg: #7dd4a6;
+    --link-hover-color: #a4e6c3;
+    --link-selected-fg: #5db88a;
+
+    --hairline-color: #3a3a3a;
+    --border-color: #3a3a3a;
+
+    --button-bg: #3d9d6e;
+    --button-fg: #ffffff;
+    --button-hover-bg: #5db88a;
+    --default-button-bg: #2d8f66;
+    --default-button-hover-bg: #3d9d6e;
+    --close-button-bg: #555;
+    --close-button-hover-bg: #777;
+
+    --object-tools-bg: #3d9d6e;
+    --object-tools-hover-bg: #5db88a;
+
+    --delete-button-bg: #c44;
+    --delete-button-hover-bg: #e55;
+
+    --selected-bg: #1f3a2e;
+    --selected-row: #1f3a2e;
+
+    --message-success-bg: #1f3a2e;
+    --message-warning-bg: #3a3520;
+    --message-error-bg: #3a2020;
+}
+
+/* Dark mode — inputs, selects, and table cells need readable text */
+html[data-theme="dark"] input,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select,
+html[data-theme="dark"] .vTextField,
+html[data-theme="dark"] .vURLField,
+html[data-theme="dark"] .vLargeTextField {
+    background-color: #2a2a2a;
+    color: #e8e8e8;
+    border-color: #3a3a3a;
+}
+
+html[data-theme="dark"] .module h2,
+html[data-theme="dark"] .module caption,
+html[data-theme="dark"] .inline-group h2 {
+    background: #0D3F2E;
+    color: #ffffff;
+}
+
+html[data-theme="dark"] #changelist-filter li.selected a {
+    color: #7dd4a6;
+}
+
+html[data-theme="dark"] .help,
+html[data-theme="dark"] .help-text,
+html[data-theme="dark"] p.help {
+    color: #a0a0a0;
+}
+
+/* ── Header branding layout ── */
+#branding {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#branding h1 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#branding .admin-logo {
+    height: 32px;
+    width: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* ── Module headers ── */
+.module h2, .module caption, .inline-group h2 {
+    background: var(--secondary);
+}
+
+/* ── Calendar & date picker highlights ── */
+.calendarbox .calendarnav-previous,
+.calendarbox .calendarnav-next {
+    background: var(--primary);
+}
+
+.calendar td.selected a {
+    background: var(--primary);
+    color: var(--primary-fg);
+}

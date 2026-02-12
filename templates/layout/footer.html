@@ -1,0 +1,24 @@
+<footer class="text-white py-4" style="background-color: var(--dm-primary);">
+    <div class="container">
+        <div class="row align-items-center gy-3">
+            <div class="col-md-4 text-center text-md-start">
+                <span class="fw-bold">Django Mombasa</span><br>
+                <small style="opacity: 0.7;">Learn. Build. Share. Grow.</small><br>
+                <a href="{% url 'app:membership' %}" class="text-white-50 small text-decoration-none">Membership</a><br>
+                <a href="{% url 'app:page_detail' 'data-protection' %}" class="text-white-50 small text-decoration-none">Data Protection</a>
+                <span class="text-white-50 small">&middot;</span>
+                <a href="{% url 'app:page_detail' 'code-of-conduct' %}" class="text-white-50 small text-decoration-none">Code of Conduct</a>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="d-flex flex-wrap justify-content-center gap-2">
+                    {% for link in social_links %}
+                    <a href="{{ link.url }}" class="social-icon" aria-label="{{ link.name }}" target="_blank" rel="noopener"><i class="{{ link.icon_class }}"></i></a>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-4 text-center text-md-end">
+                <small style="opacity: 0.7;">&copy; 2026 Django Mombasa. All rights reserved.</small>
+            </div>
+        </div>
+    </div>
+</footer>

@@ -1,0 +1,70 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block title %}Welcome, {{ member.name }}! | Django Mombasa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .success-header {
+        background-color: var(--dm-primary);
+        padding-top: 72px;
+    }
+    .member-id-display {
+        font-size: 2.5rem;
+        font-weight: 700;
+        letter-spacing: 3px;
+        color: var(--dm-primary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<section class="success-header text-white text-center py-5">
+    <div class="container py-4">
+        <i class="bi bi-check-circle" style="font-size: 3rem; opacity: 0.9;"></i>
+        <h1 class="fw-bold mt-3 mb-2">Welcome to Django Mombasa!</h1>
+        <p class="mb-0" style="opacity: 0.8;">Thank you for joining, {{ member.name }}.</p>
+    </div>
+</section>
+
+<!-- Member ID Card -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-7">
+
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                <div class="card text-center">
+                    <div class="card-body p-5">
+                        <p class="text-muted mb-2">Your Member ID</p>
+                        <p class="member-id-display mb-1">{{ member.member_id }}</p>
+                        <p class="text-muted small mb-4">Keep this ID for future reference.</p>
+
+                        <hr>
+
+                        <a href="{% url 'app:send_member_id' member.member_id %}" class="btn btn-primary w-100 mb-3">
+                            <i class="bi bi-envelope me-2"></i>Send ID to My Email
+                        </a>
+
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'app:membership' %}" class="btn btn-outline-primary flex-fill">Membership</a>
+                            <a href="{% url 'app:index' %}" class="btn btn-outline-secondary flex-fill">Home</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

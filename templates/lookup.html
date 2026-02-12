@@ -1,0 +1,179 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block title %}Member Lookup | Django Mombasa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .lookup-header {
+        background-color: var(--dm-primary);
+        padding-top: 72px;
+    }
+    /* Hide all field groups by default; JS shows the active one */
+    .lookup-fields { display: none; }
+    .lookup-fields.active { display: block; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<section class="lookup-header text-white text-center py-5">
+    <div class="container py-4">
+        <h1 class="fw-bold mb-2">Member Lookup</h1>
+        <p style="opacity: 0.8;">Find your membership details using your Member ID, name, or phone number.</p>
+    </div>
+</section>
+
+<!-- Lookup Form -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ form.non_field_errors.0 }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endif %}
+
+                {% if searched and not member and not form.errors %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    No member found matching your search. Please check your details and try again.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endif %}
+
+                <div class="card">
+                    <div class="card-body p-4">
+                        <form method="post" novalidate>
+                            {% csrf_token %}
+
+                            <!-- Search method -->
+                            <p class="fw-semibold mb-3">Search by:</p>
+                            <div class="d-flex flex-wrap gap-3 mb-4">
+                                {% for radio in form.search_by %}
+                                <div class="form-check">
+                                    {{ radio.tag }}
+                                    <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Member ID fields -->
+                            <div id="fields-member_id" class="lookup-fields">
+                                <div class="mb-3">
+                                    <label for="id_member_id" class="form-label">Member ID</label>
+                                    {{ form.member_id }}
+                                </div>
+                            </div>
+
+                            <!-- Name + Phone fields -->
+                            <div id="fields-name_phone" class="lookup-fields">
+                                <div class="mb-3">
+                                    <label for="id_name" class="form-label">Name</label>
+                                    {{ form.name }}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="id_phone_np" class="form-label">Phone</label>
+                                    {{ form.phone }}
+                                </div>
+                            </div>
+
+                            <!-- Phone + Year of Birth fields -->
+                            <div id="fields-phone_yob" class="lookup-fields">
+                                <div class="mb-3">
+                                    <label for="id_phone_py" class="form-label">Phone</label>
+                                    {{ form.phone }}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="id_year_of_birth" class="form-label">Year of Birth</label>
+                                    {{ form.year_of_birth }}
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 btn-lg">Look Up</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Result card -->
+                {% if member %}
+                <div class="card mt-4 border-success">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0 fw-bold" style="color: var(--dm-primary);">
+                            <i class="bi bi-person-badge me-2"></i>Member Found
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless mb-0">
+                            <tbody>
+                                <tr>
+                                    <th style="width: 40%; color: var(--dm-muted-text);">Member ID</th>
+                                    <td class="fw-bold" style="color: var(--dm-primary);">{{ member.member_id }}</td>
+                                </tr>
+                                <tr>
+                                    <th style="color: var(--dm-muted-text);">Name</th>
+                                    <td>{{ member.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th style="color: var(--dm-muted-text);">Gender</th>
+                                    <td>{{ member.get_gender_display }}</td>
+                                </tr>
+                                <tr>
+                                    <th style="color: var(--dm-muted-text);">Primary Language</th>
+                                    <td>{{ member.get_primary_language_display }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <hr>
+                        <p class="text-muted small mb-3">For privacy, only limited information is shown. You can request your full details or ask for your data to be deleted.</p>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="{% url 'app:request_details' member.member_id %}" class="btn btn-outline-primary">
+                                <i class="bi bi-envelope me-1"></i> Request Full Details
+                            </a>
+                            <a href="{% url 'app:request_deletion' member.member_id %}" class="btn btn-outline-danger">
+                                <i class="bi bi-trash me-1"></i> Request Data Deletion
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const radios = document.querySelectorAll('input[name="search_by"]');
+        const groups = document.querySelectorAll('.lookup-fields');
+
+        function toggle() {
+            const selected = document.querySelector('input[name="search_by"]:checked');
+            groups.forEach(g => g.classList.remove('active'));
+            if (selected) {
+                const target = document.getElementById('fields-' + selected.value);
+                if (target) target.classList.add('active');
+            }
+        }
+
+        radios.forEach(r => r.addEventListener('change', toggle));
+        toggle();
+    });
+</script>
+{% endblock %}
