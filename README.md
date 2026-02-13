@@ -335,6 +335,8 @@ The admin panel is accessible at `/admin/` and features:
 
 ### Docker
 
+Docker is used for **deployment and production** only. For local development, use `python manage.py runserver` instead — it's faster and requires no Docker setup (see [Local Development](#local-development)).
+
 The production Docker setup includes:
 
 - **`Dockerfile`** — Python 3.14-slim base, installs PostgreSQL client libraries, copies the project, runs `collectstatic` at build time, and uses `entrypoint.sh` to run migrations and start Gunicorn.
@@ -342,15 +344,42 @@ The production Docker setup includes:
   - `db` — PostgreSQL 17 (Alpine) with a persistent volume and health checks.
   - `web` — Django app served by Gunicorn on port 8000 with a media volume.
 
+#### When to build
+
+You only need to run `docker compose up --build` when:
+
+- It's your **first time** starting the containers
+- You've changed **application code** (models, views, templates, etc.)
+- You've changed **dependencies** (`requirements.txt`)
+- You've modified the **`Dockerfile`** or **`entrypoint.sh`**
+
+If none of the above changed (e.g. you just stopped and want to restart), you can skip the build:
+
 ```bash
-# Build and start
+# Restart without rebuilding (faster)
+docker compose up -d
+```
+
+#### Common commands
+
+```bash
+# First-time setup: build and start in detached mode
 docker compose up --build -d
 
-# Run management commands
+# Rebuild after code/dependency changes
+docker compose up --build -d
+
+# Restart containers without rebuilding (no code changes)
+docker compose up -d
+
+# Run management commands inside the running container
 docker compose exec web python manage.py createsuperuser
 docker compose exec web python manage.py shell
 
-# Stop and remove containers
+# View logs
+docker compose logs -f web
+
+# Stop containers (preserves database data)
 docker compose down
 
 # Stop and remove containers + volumes (deletes database data)

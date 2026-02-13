@@ -2,6 +2,12 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Rules
+
+- **NEVER** delete or remove content from any file (code, config, requirements, etc.) without first asking for permission and explaining clearly why the deletion is necessary.
+- When editing files, preserve existing content unless explicitly told to remove it.
+- If a change would result in lost functionality or removed lines, flag it and wait for approval before proceeding.
+
 ## Project Overview
 
 Django Mombasa is a community website for the Django Mombasa developer community, built with **Django 6.0.2** and **Python 3.14**. It manages member registrations, events, CMS pages, and social media links.
@@ -69,6 +75,11 @@ config/
   urls.py             Root URL configuration
   wsgi.py             WSGI entrypoint (defaults to prod settings)
   asgi.py             ASGI entrypoint (defaults to prod settings)
+accounts/             Email-based custom user model and authentication
+  models.py           User model (AbstractUser, email login)
+  managers.py         CustomUserManager (create_user, create_superuser)
+  backends.py         EmailBackend authentication
+  admin.py            UserAdmin with import/export
 app/                  Main application (models, views, forms, admin, context processors)
 templates/
   layout/             Shared components (base.html, navbar.html, footer.html)
@@ -93,6 +104,7 @@ Override with: `DJANGO_SETTINGS_MODULE=config.settings.prod python manage.py ...
 
 ## Models
 
+- **User** (accounts app) — custom user model with email-based authentication (`USERNAME_FIELD = 'email'`). Extends `AbstractUser` with username removed. `AUTH_USER_MODEL = 'accounts.User'`.
 - **MemberIdSequence** — singleton table for race-safe member ID generation
 - **Tag** — event categorisation (name)
 - **Event** — community events (name, date, rsvp_link, details, tags M2M)
