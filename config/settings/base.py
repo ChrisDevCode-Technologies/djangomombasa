@@ -32,7 +32,16 @@ INSTALLED_APPS = [
     'import_export',
     'django_summernote',
     # custom apps
+    'accounts',
     'app',
+]
+
+# Custom user model — email-based authentication
+AUTH_USER_MODEL = 'accounts.User'
+
+# Authentication backends
+AUTHENTICATION_BACKENDS = [
+    'accounts.backends.EmailBackend',
 ]
 
 MIDDLEWARE = [
