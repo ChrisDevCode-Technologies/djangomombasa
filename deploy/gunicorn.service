@@ -1,0 +1,26 @@
+[Unit]
+Description=Django Mombasa Gunicorn Daemon
+After=network.target postgresql.service
+Requires=postgresql.service
+
+[Service]
+User=djangomombasa
+Group=www-data
+WorkingDirectory=/opt/djangomombasa
+EnvironmentFile=/etc/djangomombasa/.env
+Environment=DJANGO_SETTINGS_MODULE=config.settings.prod
+
+ExecStart=/opt/djangomombasa/.venv/bin/gunicorn config.wsgi \
+    --bind unix:/run/gunicorn/djangomombasa.sock \
+    --workers 3 \
+    --access-logfile /var/log/djangomombasa/access.log \
+    --error-logfile /var/log/djangomombasa/error.log
+
+Restart=on-failure
+RestartSec=5
+
+RuntimeDirectory=gunicorn
+RuntimeDirectoryMode=0755
+
+[Install]
+WantedBy=multi-user.target
