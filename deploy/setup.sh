@@ -2,28 +2,28 @@
 # Django Mombasa — Ubuntu VPS Setup Script
 # Run as root: sudo bash deploy/setup.sh
 #
+# Assumes the repo is already cloned, virtualenv created, and pip install done.
+#
 # This script:
-#   1. Installs system packages (Python 3, PostgreSQL, Nginx, Certbot)
-#   2. Creates a PostgreSQL database and user
+#   1. Installs remaining system packages (Nginx, Certbot)
+#   2. Configures firewall
 #   3. Creates a dedicated system user
-#   4. Clones the repo and sets up a virtualenv
-#   5. Configures environment variables
-#   6. Runs collectstatic and migrate
-#   7. Installs the systemd service and Nginx config
-#   8. Starts everything up
+#   4. Writes the environment file
+#   5. Runs collectstatic and migrate
+#   6. Installs the systemd service and Nginx config
+#   7. Starts everything up
 
 set -euo pipefail
 
 # ──────────────────────────────────────────────
-# Configuration — edit these before running
+# Configuration
 # ──────────────────────────────────────────────
-REPO_URL="https://github.com/your-username/djangomombasa.git"  # <-- CHANGE THIS
-DOMAIN="your-domain.com"          # <-- CHANGE THIS (or leave for later)
-APP_DIR="/opt/djangomombasa"
+DOMAIN="djangomombasa.org"
+APP_DIR="/var/www/djangomombasa"
 APP_USER="djangomombasa"
 DB_NAME="djangomombasa"
-DB_USER="djangomombasa"
-DB_PASSWORD=""                    # Will be auto-generated if empty
+DB_USER="linodeuser"
+DB_PASSWORD="linodepassword"
 
 # ──────────────────────────────────────────────
 # Sanity checks
@@ -33,17 +33,18 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
+if [[ ! -d "${APP_DIR}/.venv" ]]; then
+    echo "Error: Virtualenv not found at ${APP_DIR}/.venv"
+    echo "Create it first: python3 -m venv ${APP_DIR}/.venv && ${APP_DIR}/.venv/bin/pip install -r ${APP_DIR}/requirements.txt"
+    exit 1
+fi
+
 # ──────────────────────────────────────────────
-# 1. Install system packages
+# 1. Install system packages (nginx, certbot)
 # ──────────────────────────────────────────────
 echo "==> Installing system packages..."
-apt update && apt upgrade -y
-apt install -y \
-    python3 python3-venv python3-dev python3-pip \
-    postgresql postgresql-contrib libpq-dev \
-    nginx \
-    certbot python3-certbot-nginx \
-    git curl ufw
+apt update
+apt install -y nginx certbot python3-certbot-nginx ufw
 
 # ──────────────────────────────────────────────
 # 2. Configure firewall
@@ -54,28 +55,7 @@ ufw allow 'Nginx Full'
 ufw --force enable
 
 # ──────────────────────────────────────────────
-# 3. Create PostgreSQL database and user
-# ──────────────────────────────────────────────
-echo "==> Setting up PostgreSQL..."
-if [[ -z "$DB_PASSWORD" ]]; then
-    DB_PASSWORD=$(python3 -c "import secrets; print(secrets.token_urlsafe(32))")
-fi
-
-sudo -u postgres psql <<SQL
-DO \$\$
-BEGIN
-    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '${DB_USER}') THEN
-        CREATE USER ${DB_USER} WITH PASSWORD '${DB_PASSWORD}';
-    END IF;
-END
-\$\$;
-CREATE DATABASE ${DB_NAME} OWNER ${DB_USER};
-GRANT ALL PRIVILEGES ON DATABASE ${DB_NAME} TO ${DB_USER};
-SQL
-echo "    Database '${DB_NAME}' ready (user: ${DB_USER})"
-
-# ──────────────────────────────────────────────
-# 4. Create system user
+# 3. Create system user
 # ──────────────────────────────────────────────
 echo "==> Creating system user '${APP_USER}'..."
 if ! id "${APP_USER}" &>/dev/null; then
@@ -84,23 +64,7 @@ fi
 usermod -aG www-data "${APP_USER}"
 
 # ──────────────────────────────────────────────
-# 5. Clone repo and set up virtualenv
-# ──────────────────────────────────────────────
-echo "==> Cloning repository..."
-if [[ -d "${APP_DIR}" ]]; then
-    echo "    ${APP_DIR} already exists — pulling latest..."
-    cd "${APP_DIR}" && git pull
-else
-    git clone "${REPO_URL}" "${APP_DIR}"
-fi
-
-echo "==> Creating virtualenv and installing dependencies..."
-python3 -m venv "${APP_DIR}/.venv"
-"${APP_DIR}/.venv/bin/pip" install --upgrade pip
-"${APP_DIR}/.venv/bin/pip" install -r "${APP_DIR}/requirements.txt"
-
-# ──────────────────────────────────────────────
-# 6. Create environment file
+# 4. Create environment file
 # ──────────────────────────────────────────────
 echo "==> Writing environment file..."
 mkdir -p /etc/djangomombasa
@@ -130,7 +94,7 @@ chown root:${APP_USER} /etc/djangomombasa/.env
 echo "    Environment file written to /etc/djangomombasa/.env"
 
 # ──────────────────────────────────────────────
-# 7. Set up directories and permissions
+# 5. Set up directories and permissions
 # ──────────────────────────────────────────────
 echo "==> Setting permissions..."
 mkdir -p "${APP_DIR}/media"
@@ -141,7 +105,7 @@ chown -R "${APP_USER}:www-data" /var/log/djangomombasa
 chmod -R 755 "${APP_DIR}"
 
 # ──────────────────────────────────────────────
-# 8. Run Django setup
+# 6. Run Django setup
 # ──────────────────────────────────────────────
 echo "==> Running collectstatic and migrate..."
 cd "${APP_DIR}"
@@ -155,7 +119,7 @@ sudo -u "${APP_USER}" bash -c "
 "
 
 # ──────────────────────────────────────────────
-# 9. Install systemd service
+# 7. Install systemd service
 # ──────────────────────────────────────────────
 echo "==> Installing systemd service..."
 cp "${APP_DIR}/deploy/gunicorn.service" /etc/systemd/system/djangomombasa.service
@@ -164,7 +128,7 @@ systemctl enable djangomombasa
 systemctl start djangomombasa
 
 # ──────────────────────────────────────────────
-# 10. Install Nginx config
+# 8. Install Nginx config
 # ──────────────────────────────────────────────
 echo "==> Configuring Nginx..."
 cp "${APP_DIR}/deploy/nginx.conf" /etc/nginx/sites-available/djangomombasa
