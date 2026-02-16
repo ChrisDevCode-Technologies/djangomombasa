@@ -6,11 +6,11 @@ Requires=postgresql.service
 [Service]
 User=djangomombasa
 Group=www-data
-WorkingDirectory=/opt/djangomombasa
+WorkingDirectory=/var/www/djangomombasa
 EnvironmentFile=/etc/djangomombasa/.env
 Environment=DJANGO_SETTINGS_MODULE=config.settings.prod
 
-ExecStart=/opt/djangomombasa/.venv/bin/gunicorn config.wsgi \
+ExecStart=/var/www/djangomombasa/.venv/bin/gunicorn config.wsgi \
     --bind unix:/run/gunicorn/djangomombasa.sock \
     --workers 3 \
     --access-logfile /var/log/djangomombasa/access.log \
