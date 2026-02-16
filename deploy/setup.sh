@@ -33,9 +33,9 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-if [[ ! -d "${APP_DIR}/.venv" ]]; then
-    echo "Error: Virtualenv not found at ${APP_DIR}/.venv"
-    echo "Create it first: python3 -m venv ${APP_DIR}/.venv && ${APP_DIR}/.venv/bin/pip install -r ${APP_DIR}/requirements.txt"
+if [[ ! -d "${APP_DIR}/bin" ]]; then
+    echo "Error: Virtualenv not found at ${APP_DIR}/bin"
+    echo "Create it first: python3 -m venv ${APP_DIR}/bin && ${APP_DIR}/bin/pip install -r ${APP_DIR}/requirements.txt"
     exit 1
 fi
 
@@ -69,7 +69,7 @@ usermod -aG www-data "${APP_USER}"
 echo "==> Writing environment file..."
 mkdir -p /etc/djangomombasa
 
-SECRET_KEY=$("${APP_DIR}/.venv/bin/python" -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())")
+SECRET_KEY=$("${APP_DIR}/bin/python" -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())")
 
 cat > /etc/djangomombasa/.env <<ENV
 DJANGO_SETTINGS_MODULE=config.settings.prod
@@ -114,8 +114,8 @@ sudo -u "${APP_USER}" bash -c "
     set -a
     source /etc/djangomombasa/.env
     set +a
-    ${APP_DIR}/.venv/bin/python manage.py collectstatic --noinput
-    ${APP_DIR}/.venv/bin/python manage.py migrate --noinput
+    ${APP_DIR}/bin/python manage.py collectstatic --noinput
+    ${APP_DIR}/bin/python manage.py migrate --noinput
 "
 
 # ──────────────────────────────────────────────
@@ -158,5 +158,5 @@ echo ""
 echo "  Next steps:"
 echo "    1. Edit /etc/djangomombasa/.env (add EMAIL_HOST_PASSWORD, verify domain)"
 echo "    2. Set up SSL:  sudo certbot --nginx -d ${DOMAIN} -d www.${DOMAIN}"
-echo "    3. Create admin: sudo -u ${APP_USER} bash -c 'source /etc/djangomombasa/.env && ${APP_DIR}/.venv/bin/python ${APP_DIR}/manage.py createsuperuser'"
+echo "    3. Create admin: sudo -u ${APP_USER} bash -c 'source /etc/djangomombasa/.env && ${APP_DIR}/bin/python ${APP_DIR}/manage.py createsuperuser'"
 echo ""

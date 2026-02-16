@@ -33,7 +33,7 @@ sudo certbot --nginx -d your-domain.com -d www.your-domain.com
 # 7. Create an admin user
 sudo -u djangomombasa bash -c '
     set -a && source /etc/djangomombasa/.env && set +a
-    /var/www/djangomombasa/.venv/bin/python /var/www/djangomombasa/manage.py createsuperuser
+    /var/www/djangomombasa/bin/python /var/www/djangomombasa/manage.py createsuperuser
 '
 ```
 
@@ -56,16 +56,16 @@ cd /var/www/djangomombasa
 sudo -u djangomombasa git pull
 sudo -u djangomombasa bash -c '
     set -a && source /etc/djangomombasa/.env && set +a
-    /var/www/djangomombasa/.venv/bin/pip install -r requirements.txt
-    /var/www/djangomombasa/.venv/bin/python manage.py collectstatic --noinput
-    /var/www/djangomombasa/.venv/bin/python manage.py migrate --noinput
+    /var/www/djangomombasa/bin/pip install -r requirements.txt
+    /var/www/djangomombasa/bin/python manage.py collectstatic --noinput
+    /var/www/djangomombasa/bin/python manage.py migrate --noinput
 '
 sudo systemctl restart djangomombasa
 
 # Django management commands
 sudo -u djangomombasa bash -c '
     set -a && source /etc/djangomombasa/.env && set +a
-    /var/www/djangomombasa/.venv/bin/python /var/www/djangomombasa/manage.py shell
+    /var/www/djangomombasa/bin/python /var/www/djangomombasa/manage.py shell
 '
 ```
 
@@ -74,7 +74,7 @@ sudo -u djangomombasa bash -c '
 | What | Where |
 |------|-------|
 | Application code | `/var/www/djangomombasa/` |
-| Virtual environment | `/var/www/djangomombasa/.venv/` |
+| Virtual environment | `/var/www/djangomombasa/ (venv at project root)` |
 | Environment variables | `/etc/djangomombasa/.env` |
 | Systemd service | `/etc/systemd/system/djangomombasa.service` |
 | Nginx config | `/etc/nginx/sites-available/djangomombasa` |
