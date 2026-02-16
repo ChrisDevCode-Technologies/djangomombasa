@@ -10,7 +10,7 @@ WorkingDirectory=/var/www/djangomombasa
 EnvironmentFile=/etc/djangomombasa/.env
 Environment=DJANGO_SETTINGS_MODULE=config.settings.prod
 
-ExecStart=/var/www/djangomombasa/.venv/bin/gunicorn config.wsgi \
+ExecStart=/var/www/djangomombasa/bin/gunicorn config.wsgi \
     --bind unix:/run/gunicorn/djangomombasa.sock \
     --workers 3 \
     --access-logfile /var/log/djangomombasa/access.log \
