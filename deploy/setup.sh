@@ -69,7 +69,8 @@ usermod -aG www-data "${APP_USER}"
 echo "==> Writing environment file..."
 mkdir -p /etc/djangomombasa
 
-SECRET_KEY=$("${APP_DIR}/bin/python" -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())")
+# Generate a shell-safe secret key (alphanumeric + URL-safe chars only)
+SECRET_KEY=$(python3 -c "import secrets; print(secrets.token_urlsafe(50))")
 
 cat > /etc/djangomombasa/.env <<ENV
 DJANGO_SETTINGS_MODULE=config.settings.prod
