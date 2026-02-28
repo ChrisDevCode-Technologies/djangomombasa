@@ -1,0 +1,636 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block title %}Interactive Maps | Kenya KUCCPS | Django Mombasa{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""/>
+<style>
+    .maps-header {
+        background-color: var(--dm-primary);
+        padding-top: 72px;
+    }
+
+    /* ── Map styles ── */
+    .map-wrap {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    .map-container {
+        height: 560px;
+        width: 100%;
+        background: #e8ede9;
+    }
+    .county-sidebar {
+        position: absolute;
+        top: 0; right: 0;
+        width: 340px;
+        height: 100%;
+        background: #fff;
+        z-index: 800;
+        transform: translateX(100%);
+        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: -6px 0 24px rgba(0,0,0,0.12);
+        overflow-y: auto;
+        padding: 1.25rem;
+    }
+    .county-sidebar.open { transform: translateX(0); }
+    .county-sidebar .close-btn {
+        border: none; background: none;
+        font-size: 1.3rem; cursor: pointer;
+        color: var(--dm-muted-text);
+    }
+    .county-sidebar .close-btn:hover { color: var(--dm-dark-text); }
+    .inst-list { max-height: 320px; overflow-y: auto; }
+    .inst-item {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--dm-border);
+    }
+    .inst-item:last-child { border-bottom: none; }
+
+    /* Cluster selector */
+    .cluster-selector {
+        position: absolute;
+        top: 12px; left: 56px;
+        z-index: 800;
+    }
+    .cluster-selector select {
+        border-radius: 8px;
+        border: 2px solid var(--dm-border);
+        padding: 7px 12px;
+        font-size: 0.85rem;
+        max-width: 320px;
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+    .cluster-selector select:focus {
+        border-color: var(--dm-secondary);
+        outline: none;
+    }
+
+    /* Legend */
+    .map-legend {
+        background: #fff;
+        padding: 10px 14px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        font-size: 0.8rem;
+        line-height: 1.6;
+    }
+    .map-legend .swatch {
+        width: 16px; height: 16px;
+        display: inline-block;
+        margin-right: 6px;
+        border-radius: 3px;
+        vertical-align: middle;
+    }
+    .map-legend .legend-title {
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: var(--dm-dark-text);
+    }
+
+    /* Tabs */
+    .nav-tabs .nav-link {
+        color: var(--dm-muted-text);
+        font-weight: 500;
+        border: none;
+        padding: 0.6rem 1.2rem;
+    }
+    .nav-tabs .nav-link.active {
+        color: var(--dm-primary);
+        border-bottom: 3px solid var(--dm-primary);
+        background: none;
+    }
+    .nav-tabs .nav-link:hover:not(.active) {
+        color: var(--dm-secondary);
+        border-color: transparent;
+    }
+
+    /* County hover info bar */
+    .hover-info {
+        position: absolute;
+        bottom: 8px; left: 56px;
+        z-index: 800;
+        background: rgba(255,255,255,0.95);
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    .hover-info.visible { opacity: 1; }
+
+    .stat-card {
+        border: none;
+        border-radius: 12px;
+        text-align: center;
+        padding: 1.5rem;
+        background-color: var(--dm-bg-light);
+    }
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--dm-primary);
+    }
+    .stat-label {
+        color: var(--dm-muted-text);
+        font-size: 0.875rem;
+    }
+
+    /* ── Glossary ── */
+    .glossary-term {
+        font-weight: 600;
+        color: var(--dm-primary);
+    }
+    .glossary-def {
+        color: var(--dm-dark-text);
+        margin-bottom: 0;
+    }
+    .glossary-item {
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--dm-border);
+    }
+    .glossary-item:last-child { border-bottom: none; }
+    .glossary-abbr {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--dm-secondary);
+        background: rgba(31, 107, 76, 0.08);
+        padding: 1px 6px;
+        border-radius: 4px;
+        margin-left: 6px;
+        vertical-align: middle;
+    }
+
+    @media (max-width: 768px) {
+        .map-container { height: 420px; }
+        .county-sidebar { width: 100%; }
+        .cluster-selector select { max-width: 200px; font-size: 0.78rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<section class="maps-header text-white py-5">
+    <div class="container py-4">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb mb-0" style="--bs-breadcrumb-divider-color: rgba(255,255,255,0.5);">
+                <li class="breadcrumb-item"><a href="{% url 'app:list_apps' %}" class="text-white-50 text-decoration-none">Apps</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'kenya_kuccps:index' %}" class="text-white-50 text-decoration-none">Kenya KUCCPS</a></li>
+                <li class="breadcrumb-item active text-white" aria-current="page">Interactive Maps</li>
+            </ol>
+        </nav>
+        <h1 class="fw-bold mb-3"><i class="bi bi-globe-americas me-2"></i>Interactive Maps</h1>
+        <p class="mb-0 col-lg-8" style="opacity: 0.85; font-size: 1.1rem;">
+            Explore Kenya's education landscape — institutions by county and programme cluster distributions across all 47 counties.
+        </p>
+    </div>
+</section>
+
+<!-- Maps -->
+<section class="py-5">
+    <div class="container">
+
+        <!-- Tabs -->
+        <ul class="nav nav-tabs mb-3" id="mapTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="county-tab" data-bs-toggle="tab" data-bs-target="#county-pane" type="button" role="tab">
+                    <i class="bi bi-geo-alt-fill me-1"></i>County Intelligence
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="cluster-tab" data-bs-toggle="tab" data-bs-target="#cluster-pane" type="button" role="tab">
+                    <i class="bi bi-diagram-3-fill me-1"></i>Cluster Intelligence
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab content -->
+        <div class="tab-content">
+            <!-- County Map -->
+            <div class="tab-pane fade show active" id="county-pane" role="tabpanel">
+                <div class="map-wrap">
+                    <div id="county-map" class="map-container"></div>
+                    <div id="county-hover" class="hover-info"></div>
+                    <div id="county-sidebar" class="county-sidebar">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="fw-bold mb-0" id="sb-county-name"></h5>
+                                <small class="text-muted" id="sb-county-subtitle"></small>
+                            </div>
+                            <button class="close-btn" id="sb-close" title="Close">&times;</button>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <div class="stat-card py-2 px-2">
+                                    <div class="stat-number fs-4" id="sb-inst-count">0</div>
+                                    <div class="stat-label">Institutions</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="stat-card py-2 px-2">
+                                    <div class="stat-number fs-4" id="sb-prog-count">0</div>
+                                    <div class="stat-label">Programmes</div>
+                                </div>
+                            </div>
+                        </div>
+                        <h6 class="fw-semibold mb-2"><i class="bi bi-building me-1"></i>Institutions</h6>
+                        <div class="inst-list" id="sb-inst-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cluster Map -->
+            <div class="tab-pane fade" id="cluster-pane" role="tabpanel">
+                <div class="map-wrap">
+                    <div id="cluster-map" class="map-container"></div>
+                    <div class="cluster-selector">
+                        <select id="cluster-select" class="form-select form-select-sm">
+                            <option value="__all__">All Clusters (total offerings)</option>
+                        </select>
+                    </div>
+                    <div id="cluster-hover" class="hover-info"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Glossary -->
+<section class="py-5" style="background-color: var(--dm-bg-light);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <h2 class="fw-bold mb-1"><i class="bi bi-book me-2"></i>Glossary</h2>
+                <p class="text-muted mb-4">Definitions of key terms used on this page.</p>
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body px-4">
+
+                        <div class="glossary-item">
+                            <span class="glossary-term">KUCCPS</span><span class="glossary-abbr">Abbreviation</span>
+                            <p class="glossary-def small">Kenya Universities and Colleges Central Placement Service — the government body that coordinates student placement into universities, colleges, and TVET institutions based on KCSE performance.</p>
+                        </div>
+
+                        <div class="glossary-item">
+                            <span class="glossary-term">KCSE</span><span class="glossary-abbr">Abbreviation</span>
+                            <p class="glossary-def small">Kenya Certificate of Secondary Education — the national examination taken at the end of secondary school. KCSE grades determine eligibility for university and college placement.</p>
+                        </div>
+
+                        <div class="glossary-item">
+                            <span class="glossary-term">County</span>
+                            <p class="glossary-def small">One of Kenya's 47 administrative and political subdivisions established by the 2010 Constitution. Each county hosts one or more educational institutions. The maps shade counties by how many institutions or offerings they contain.</p>
+                        </div>
+
+                        <div class="glossary-item">
+                            <span class="glossary-term">Institution</span>
+                            <p class="glossary-def small">A university, constituent college, or TVET institution registered with KUCCPS that offers degree, diploma, certificate, or artisan programmes. Each institution belongs to a single county and is classified by type (e.g. Public, Private) and category (e.g. University, National Polytechnic).</p>
+                        </div>
+
+                        <div class="glossary-item">
+                            <span class="glossary-term">Programme</span>
+                            <p class="glossary-def small">A named course of study (e.g. "Bachelor of Science in Computer Science") that a student can be placed into. Each programme belongs to one cluster/programme group and may be offered by multiple institutions.</p>
+                        </div>
+
+                        <div class="glossary-item">
+                            <span class="glossary-term">Programme Offering</span>
+                            <p class="glossary-def small">A specific instance of a programme at a particular institution. For example, "Computer Science at University of Nairobi" is one offering, while "Computer Science at Kenyatta University" is another — each with its own cut-off point.</p>
+                        </div>
+
+                        <div class="glossary-item">
+                            <span class="glossary-term">Cluster</span><span class="glossary-abbr">Also: Programme Group</span>
+                            <p class="glossary-def small">A grouping of related programmes that share similar KCSE subject requirements. Examples include "Biological Sciences", "Engineering", or "Business and Related Studies". The Cluster Intelligence map shows how offerings for each cluster are distributed across counties.</p>
+                        </div>
+
+                        <div class="glossary-item">
+                            <span class="glossary-term">Cut-off Point</span>
+                            <p class="glossary-def small">The minimum KCSE aggregate score required for placement into a specific programme offering in a given year. Cut-off points vary by institution and programme, and change from year to year based on demand and available slots.</p>
+                        </div>
+
+                        <div class="glossary-item">
+                            <span class="glossary-term">TVET</span><span class="glossary-abbr">Abbreviation</span>
+                            <p class="glossary-def small">Technical and Vocational Education and Training — institutions offering hands-on diploma, certificate, and artisan-level programmes in fields such as engineering, ICT, hospitality, and agriculture.</p>
+                        </div>
+
+                        <div class="glossary-item">
+                            <span class="glossary-term">Choropleth Map</span>
+                            <p class="glossary-def small">A map where geographic areas (counties) are shaded in proportion to a data value. Darker green shading indicates higher counts (more institutions or offerings), while lighter shading indicates lower counts.</p>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+<script>
+(function () {
+    'use strict';
+
+    /* ── Colour palette (6-step green scale) ── */
+    const COLORS = ['#d4e6dd', '#8CC5A5', '#4A9B74', '#1F6B4C', '#145C3E', '#0D3F2E'];
+    const HOVER_COLOR = '#f59e0b';
+    const DEFAULT_STYLE = { weight: 1.5, color: '#fff', fillOpacity: 0.8 };
+    const HIGHLIGHT_STYLE = { weight: 3, color: HOVER_COLOR, fillOpacity: 0.9 };
+    const KENYA_CENTER = [0.5, 37.9];
+    const KENYA_ZOOM = 6;
+
+    const GEOJSON_URL = "{% static 'geojson/kenya-counties.geojson' %}";
+    const COUNTY_API = "{% url 'kenya_kuccps:county_stats_api' %}";
+    const CLUSTER_API = "{% url 'kenya_kuccps:cluster_county_stats_api' %}";
+
+    /* ── Shared state ── */
+    let geoData = null;
+    let countyStats = null;
+    let clusterData = null;
+    let countyMap = null, clusterMap = null;
+    let countyLayer = null, clusterLayer = null;
+    let countyMapReady = false, clusterMapReady = false;
+
+    /* ── Helpers ── */
+    function getColor(value, max) {
+        if (!max || !value) return COLORS[0];
+        const r = value / max;
+        if (r > 0.8)  return COLORS[5];
+        if (r > 0.6)  return COLORS[4];
+        if (r > 0.4)  return COLORS[3];
+        if (r > 0.2)  return COLORS[2];
+        if (r > 0)    return COLORS[1];
+        return COLORS[0];
+    }
+
+    function numFmt(n) {
+        return (n || 0).toLocaleString();
+    }
+
+    function makeTiles() {
+        return L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
+            maxZoom: 12,
+        });
+    }
+
+    /* ── Legend control ── */
+    function addLegend(map, title, grades, max) {
+        const legend = L.control({ position: 'bottomright' });
+        legend.onAdd = function () {
+            const div = L.DomUtil.create('div', 'map-legend');
+            let html = `<div class="legend-title">${title}</div>`;
+            for (let i = grades.length - 1; i >= 0; i--) {
+                const lo = i === 0 ? 0 : Math.round(grades[i - 1] * max) + 1;
+                const hi = Math.round(grades[i] * max);
+                const label = i === 0 ? '0' : `${numFmt(lo)}–${numFmt(hi)}`;
+                html += `<div><span class="swatch" style="background:${COLORS[i]}"></span>${label}</div>`;
+            }
+            div.innerHTML = html;
+            return div;
+        };
+        legend.addTo(map);
+        return legend;
+    }
+
+    /* ══════════════════════════════════════════
+       MAP 1: County Intelligence
+       ══════════════════════════════════════════ */
+    function initCountyMap() {
+        if (countyMapReady) { countyMap.invalidateSize(); return; }
+
+        countyMap = L.map('county-map', { zoomSnap: 0.5 }).setView(KENYA_CENTER, KENYA_ZOOM);
+        makeTiles().addTo(countyMap);
+
+        const hoverEl = document.getElementById('county-hover');
+        const sidebar = document.getElementById('county-sidebar');
+        const sbClose = document.getElementById('sb-close');
+        let selected = null;
+
+        // Find max institution count
+        let maxInst = 0;
+        for (const k in countyStats) {
+            if (countyStats[k].institution_count > maxInst) maxInst = countyStats[k].institution_count;
+        }
+
+        countyLayer = L.geoJSON(geoData, {
+            style: function (feature) {
+                const name = feature.properties.name;
+                const count = countyStats[name] ? countyStats[name].institution_count : 0;
+                return { ...DEFAULT_STYLE, fillColor: getColor(count, maxInst) };
+            },
+            onEachFeature: function (feature, layer) {
+                const name = feature.properties.name;
+                const stats = countyStats[name] || { institution_count: 0, programme_count: 0, institutions: [] };
+
+                layer.on({
+                    mouseover: function (e) {
+                        if (selected !== layer) e.target.setStyle(HIGHLIGHT_STYLE);
+                        e.target.bringToFront();
+                        hoverEl.innerHTML = `<strong>${name}</strong> &mdash; ${numFmt(stats.institution_count)} institutions`;
+                        hoverEl.classList.add('visible');
+                    },
+                    mouseout: function (e) {
+                        if (selected !== layer) countyLayer.resetStyle(e.target);
+                        hoverEl.classList.remove('visible');
+                    },
+                    click: function (e) {
+                        // Reset previous selection
+                        if (selected) countyLayer.resetStyle(selected);
+                        selected = layer;
+                        layer.setStyle({ ...HIGHLIGHT_STYLE, fillOpacity: 0.65 });
+
+                        // Zoom to county
+                        countyMap.flyToBounds(layer.getBounds(), { padding: [40, 360], duration: 0.6 });
+
+                        // Populate sidebar
+                        document.getElementById('sb-county-name').textContent = name;
+                        document.getElementById('sb-county-subtitle').textContent = `${numFmt(stats.institution_count)} institutions · ${numFmt(stats.programme_count)} programmes`;
+                        document.getElementById('sb-inst-count').textContent = numFmt(stats.institution_count);
+                        document.getElementById('sb-prog-count').textContent = numFmt(stats.programme_count);
+
+                        let listHtml = '';
+                        const sorted = (stats.institutions || []).slice().sort((a, b) => a.name.localeCompare(b.name));
+                        sorted.forEach(function (inst) {
+                            listHtml += `<div class="inst-item">
+                                <div class="fw-semibold small">${inst.name}</div>
+                                <div class="text-muted" style="font-size:0.78rem;">
+                                    ${inst.category || ''} ${inst.type ? '· ' + inst.type : ''}
+                                </div>
+                            </div>`;
+                        });
+                        if (!listHtml) listHtml = '<p class="text-muted small">No institutions recorded.</p>';
+                        document.getElementById('sb-inst-list').innerHTML = listHtml;
+
+                        sidebar.classList.add('open');
+                    },
+                });
+            },
+        }).addTo(countyMap);
+
+        sbClose.addEventListener('click', function () {
+            sidebar.classList.remove('open');
+            if (selected) { countyLayer.resetStyle(selected); selected = null; }
+            countyMap.flyTo(KENYA_CENTER, KENYA_ZOOM, { duration: 0.5 });
+        });
+
+        addLegend(countyMap, 'Institutions', [0.001, 0.2, 0.4, 0.6, 0.8, 1], maxInst);
+        countyMapReady = true;
+    }
+
+    /* ══════════════════════════════════════════
+       MAP 2: Cluster Intelligence
+       ══════════════════════════════════════════ */
+    let clusterLegend = null;
+
+    function clusterCountyTotals() {
+        // Sum all clusters per county
+        const totals = {};
+        for (const cl in clusterData.clusters) {
+            for (const cn in clusterData.clusters[cl]) {
+                totals[cn] = (totals[cn] || 0) + clusterData.clusters[cl][cn];
+            }
+        }
+        return totals;
+    }
+
+    function updateClusterMap(dataMap, label) {
+        let maxVal = 0;
+        for (const k in dataMap) { if (dataMap[k] > maxVal) maxVal = dataMap[k]; }
+
+        clusterLayer.eachLayer(function (layer) {
+            const name = layer.feature.properties.name;
+            const val = dataMap[name] || 0;
+            layer.setStyle({ fillColor: getColor(val, maxVal) });
+        });
+
+        // Update legend
+        if (clusterLegend) clusterMap.removeControl(clusterLegend);
+        clusterLegend = addLegend(clusterMap, label, [0.001, 0.2, 0.4, 0.6, 0.8, 1], maxVal);
+    }
+
+    function initClusterMap() {
+        if (clusterMapReady) { clusterMap.invalidateSize(); return; }
+
+        clusterMap = L.map('cluster-map', { zoomSnap: 0.5 }).setView(KENYA_CENTER, KENYA_ZOOM);
+        makeTiles().addTo(clusterMap);
+
+        const hoverEl = document.getElementById('cluster-hover');
+        const select = document.getElementById('cluster-select');
+
+        // Populate dropdown
+        clusterData.cluster_list.forEach(function (name) {
+            const opt = document.createElement('option');
+            opt.value = name;
+            // Shorten long cluster names for dropdown
+            opt.textContent = name.length > 55 ? name.substring(0, 52) + '...' : name;
+            opt.title = name;
+            select.appendChild(opt);
+        });
+
+        // Default data = totals
+        let currentData = clusterCountyTotals();
+        let currentLabel = 'Total Offerings';
+
+        clusterLayer = L.geoJSON(geoData, {
+            style: function (feature) {
+                const name = feature.properties.name;
+                let maxVal = 0;
+                for (const k in currentData) { if (currentData[k] > maxVal) maxVal = currentData[k]; }
+                return { ...DEFAULT_STYLE, fillColor: getColor(currentData[name] || 0, maxVal) };
+            },
+            onEachFeature: function (feature, layer) {
+                const name = feature.properties.name;
+
+                layer.on({
+                    mouseover: function (e) {
+                        e.target.setStyle(HIGHLIGHT_STYLE);
+                        e.target.bringToFront();
+                        const val = currentData[name] || 0;
+                        hoverEl.innerHTML = `<strong>${name}</strong> &mdash; ${numFmt(val)} offerings`;
+                        hoverEl.classList.add('visible');
+                    },
+                    mouseout: function (e) {
+                        clusterLayer.resetStyle(e.target);
+                        hoverEl.classList.remove('visible');
+                    },
+                    click: function (e) {
+                        const val = currentData[name] || 0;
+                        L.popup()
+                            .setLatLng(e.latlng)
+                            .setContent(`<div style="min-width:160px;">
+                                <strong>${name}</strong><br>
+                                <span class="text-muted" style="font-size:0.85rem;">${currentLabel}</span><br>
+                                <span class="fw-bold" style="color:var(--dm-primary);font-size:1.2rem;">${numFmt(val)}</span> offerings
+                            </div>`)
+                            .openOn(clusterMap);
+                    },
+                });
+            },
+        }).addTo(clusterMap);
+
+        clusterLegend = addLegend(clusterMap, 'Total Offerings', [0.001, 0.2, 0.4, 0.6, 0.8, 1],
+            Math.max(...Object.values(currentData)));
+
+        select.addEventListener('change', function () {
+            const val = this.value;
+            if (val === '__all__') {
+                currentData = clusterCountyTotals();
+                currentLabel = 'Total Offerings';
+            } else {
+                currentData = clusterData.clusters[val] || {};
+                currentLabel = val;
+            }
+            let maxVal = 0;
+            for (const k in currentData) { if (currentData[k] > maxVal) maxVal = currentData[k]; }
+            updateClusterMap(currentData, currentLabel.length > 40 ? currentLabel.substring(0, 37) + '...' : currentLabel);
+        });
+
+        clusterMapReady = true;
+    }
+
+    /* ══════════════════════════════════════════
+       Bootstrap tab events + data loading
+       ══════════════════════════════════════════ */
+    document.getElementById('cluster-tab').addEventListener('shown.bs.tab', function () {
+        if (clusterData && geoData) initClusterMap();
+        else if (clusterMap) clusterMap.invalidateSize();
+    });
+
+    document.getElementById('county-tab').addEventListener('shown.bs.tab', function () {
+        if (countyMap) countyMap.invalidateSize();
+    });
+
+    /* Load GeoJSON + county stats in parallel, then init county map */
+    Promise.all([
+        fetch(GEOJSON_URL).then(r => r.json()),
+        fetch(COUNTY_API).then(r => r.json()),
+        fetch(CLUSTER_API).then(r => r.json()),
+    ]).then(function ([geo, county, cluster]) {
+        geoData = geo;
+        countyStats = county;
+        clusterData = cluster;
+        initCountyMap();
+    }).catch(function (err) {
+        console.error('Map data load failed:', err);
+        document.getElementById('county-map').innerHTML =
+            '<div class="d-flex align-items-center justify-content-center h-100 text-muted"><i class="bi bi-exclamation-triangle me-2"></i>Failed to load map data.</div>';
+    });
+
+})();
+</script>
+{% endblock %}
