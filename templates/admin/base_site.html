@@ -5,31 +5,39 @@
 
 {% block extrastyle %}
     <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+{% endblock %}
+
+{% block extrahead %}
     <script>
-    // Override Django's 3-way theme cycle with a 2-way light/dark toggle.
-    // Runs before DOMContentLoaded to prevent flash.
+    // Immediately fix theme — runs after Django's theme.js (which is in dark-mode-vars block).
+    // Normalise "auto" to "light" so only light/dark exist.
     (function() {
         var stored = localStorage.getItem("theme");
-        // Convert "auto" or missing value to a concrete theme
         if (stored !== "light" && stored !== "dark") {
             stored = "light";
-            localStorage.setItem("theme", stored);
         }
+        localStorage.setItem("theme", stored);
         document.documentElement.dataset.theme = stored;
+    })();
+    </script>
+{% endblock %}
 
-        document.addEventListener("DOMContentLoaded", function() {
-            var buttons = document.querySelectorAll(".theme-toggle");
-            buttons.forEach(function(btn) {
-                // Remove Django's default click listeners by cloning
-                var clone = btn.cloneNode(true);
-                btn.parentNode.replaceChild(clone, btn);
-                clone.addEventListener("click", function() {
-                    var current = localStorage.getItem("theme") || "light";
-                    var next = current === "light" ? "dark" : "light";
-                    document.documentElement.dataset.theme = next;
-                    localStorage.setItem("theme", next);
-                });
-            });
+{% block extrabody %}
+    <script>
+    // Runs at end of <body>, after Django's window.load handler has attached cycleTheme.
+    // Replace Django's 3-way cycle with a simple 2-way toggle.
+    (function() {
+        function toggleTheme() {
+            var current = localStorage.getItem("theme") || "light";
+            var next = current === "light" ? "dark" : "light";
+            document.documentElement.dataset.theme = next;
+            localStorage.setItem("theme", next);
+        }
+        // Clone all toggle buttons to strip Django's cycleTheme listeners, then attach ours.
+        document.querySelectorAll(".theme-toggle").forEach(function(btn) {
+            var clone = btn.cloneNode(true);
+            btn.parentNode.replaceChild(clone, btn);
+            clone.addEventListener("click", toggleTheme);
         });
     })();
     </script>

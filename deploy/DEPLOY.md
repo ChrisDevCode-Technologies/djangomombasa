@@ -49,7 +49,7 @@ sudo tail -f /var/log/djangomombasa/error.log
 sudo tail -f /var/log/djangomombasa/access.log
 
 # Restart after code or config changes
-sudo systemctl restart djangomombasa
+
 
 # Pull latest code and redeploy
 cd /var/www/djangomombasa
