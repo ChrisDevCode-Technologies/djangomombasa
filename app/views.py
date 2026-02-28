@@ -164,3 +164,6 @@ def request_deletion(request, member_id):
 
     messages.success(request, 'Your deletion request has been sent. Check your email for confirmation.')
     return redirect('app:lookup')
+
+def list_apps(request):
+    return render(request, 'app/list_apps.html')

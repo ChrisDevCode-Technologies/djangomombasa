@@ -20,5 +20,6 @@ urlpatterns = [
     path('event/<slug:slug>/', views.event_detail, name='event_detail'),
     path('team/', views.team, name='team'),
     path('membership/', include(membership_patterns)),
+    path('apps/', views.list_apps, name='list_apps'),
     path('page/<slug:slug>/', views.page_detail, name='page_detail'),
 ]
