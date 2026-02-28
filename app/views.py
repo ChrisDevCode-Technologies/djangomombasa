@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from .forms import MemberJoinForm, MemberLookupForm
-from .models import Event, Member, Page
+from .models import Event, Member, Organizer, Page
 
 
 def index(request):
@@ -21,6 +21,11 @@ def events(request):
 
 def membership(request):
     return render(request, 'membership.html')
+
+
+def team(request):
+    organizers = Organizer.objects.all()
+    return render(request, 'team.html', {'organizers': organizers})
 
 
 def page_detail(request, slug):

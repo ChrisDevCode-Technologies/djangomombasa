@@ -3,7 +3,7 @@ from django_summernote.admin import SummernoteModelAdmin
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
-from .models import Event, Member, Page, SocialLink, Tag
+from .models import Event, Member, Organizer, Page, SocialLink, Tag
 
 
 class TagResource(resources.ModelResource):
@@ -59,6 +59,19 @@ class PageAdmin(SummernoteModelAdmin, ImportExportModelAdmin):
     summernote_fields = ('content',)
     list_display = ('title', 'slug', 'updated_at')
     prepopulated_fields = {'slug': ('title',)}
+
+
+class OrganizerResource(resources.ModelResource):
+    class Meta:
+        model = Organizer
+
+
+@admin.register(Organizer)
+class OrganizerAdmin(ImportExportModelAdmin):
+    resource_classes = [OrganizerResource]
+    list_display = ('first_name', 'last_name', 'community_role', 'professional_role', 'location', 'order')
+    list_editable = ('order',)
+    search_fields = ('first_name', 'last_name', 'community_role')
 
 
 @admin.register(SocialLink)
