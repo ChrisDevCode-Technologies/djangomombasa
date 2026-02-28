@@ -105,6 +105,18 @@
                                 </div>
                             </div>
 
+                            <!-- Communication Preferences -->
+                            <div class="mb-3">
+                                <div class="form-check mb-2">
+                                    {{ form.receive_regular_updates }}
+                                    <label class="form-check-label" for="id_receive_regular_updates">Receive regular community updates</label>
+                                </div>
+                                <div class="form-check">
+                                    {{ form.receive_email_communications }}
+                                    <label class="form-check-label" for="id_receive_email_communications">Receive email communications about events and announcements</label>
+                                </div>
+                            </div>
+
                             <button type="submit" class="btn btn-primary w-100 btn-lg">Join the Community</button>
                         </form>
                     </div>

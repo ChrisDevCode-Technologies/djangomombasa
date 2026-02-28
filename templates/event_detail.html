@@ -1,0 +1,48 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block title %}{{ event.name }} | Django Mombasa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .event-header {
+        background-color: var(--dm-primary);
+        padding-top: 72px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<section class="event-header text-white py-5">
+    <div class="container py-4">
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            {% for tag in event.tags.all %}
+            <span class="badge" style="background-color: rgba(255,255,255,0.2);">{{ tag.name }}</span>
+            {% endfor %}
+        </div>
+        <h1 class="fw-bold mb-2">{{ event.name }}</h1>
+        <p class="mb-0" style="opacity: 0.85;"><i class="bi bi-calendar-event me-2"></i>{{ event.date|date:"l, F j, Y · g:i A" }}</p>
+    </div>
+</section>
+
+<!-- Event Details -->
+<section class="py-5">
+    <div class="container py-3">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <p class="lead mb-4" style="white-space: pre-line;">{{ event.details }}</p>
+
+                {% if event.rsvp_link %}
+                <a href="{{ event.rsvp_link }}" class="btn btn-primary btn-lg px-4" target="_blank" rel="noopener">RSVP for This Event</a>
+                {% endif %}
+
+                <hr class="my-4">
+                <a href="{% url 'app:events' %}" class="text-decoration-none"><i class="bi bi-arrow-left me-1"></i> Back to Events</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

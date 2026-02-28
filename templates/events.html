@@ -1,5 +1,5 @@
 {% extends "layout/base.html" %}
-{% load static %}
+{% load static text_utils %}
 
 {% block title %}Events | Django Mombasa{% endblock %}
 
@@ -36,12 +36,15 @@
                             <span class="badge bg-primary">{{ tag.name }}</span>
                             {% endfor %}
                         </div>
-                        <h5 class="card-title fw-semibold">{{ event.name }}</h5>
+                        <h5 class="card-title fw-semibold"><a href="{% url 'app:event_detail' event.slug %}" class="text-decoration-none" style="color: inherit;">{{ event.name }}</a></h5>
                         <p class="text-muted small mb-2"><i class="bi bi-calendar-event me-1"></i> {{ event.date|date:"F j, Y · g:i A" }}</p>
-                        <p class="card-text">{{ event.details }}</p>
-                        {% if event.rsvp_link %}
-                        <a href="{{ event.rsvp_link }}" class="btn btn-outline-primary mt-auto" style="width: fit-content;" target="_blank" rel="noopener">RSVP</a>
-                        {% endif %}
+                        <p class="card-text">{{ event.details|truncate_sentences:3 }}</p>
+                        <div class="mt-auto d-flex gap-2">
+                            <a href="{% url 'app:event_detail' event.slug %}" class="btn btn-outline-primary" style="width: fit-content;">Details</a>
+                            {% if event.rsvp_link %}
+                            <a href="{{ event.rsvp_link }}" class="btn btn-primary" style="width: fit-content;" target="_blank" rel="noopener">RSVP</a>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -69,9 +72,10 @@
                             <span class="badge bg-secondary">{{ tag.name }}</span>
                             {% endfor %}
                         </div>
-                        <h5 class="card-title fw-semibold">{{ event.name }}</h5>
+                        <h5 class="card-title fw-semibold"><a href="{% url 'app:event_detail' event.slug %}" class="text-decoration-none" style="color: inherit;">{{ event.name }}</a></h5>
                         <p class="text-muted small mb-2"><i class="bi bi-calendar-event me-1"></i> {{ event.date|date:"F j, Y" }}</p>
-                        <p class="card-text">{{ event.details }}</p>
+                        <p class="card-text">{{ event.details|truncate_sentences:3 }}</p>
+                        <a href="{% url 'app:event_detail' event.slug %}" class="btn btn-outline-secondary mt-auto" style="width: fit-content;">Details</a>
                     </div>
                 </div>
             </div>
