@@ -22,7 +22,7 @@ if not SECRET_KEY:
     raise ValueError('SECRET_KEY environment variable is required in production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # Parse ALLOWED_HOSTS from comma-separated env var
 ALLOWED_HOSTS = [
