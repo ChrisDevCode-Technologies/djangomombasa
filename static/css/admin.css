@@ -1,9 +1,12 @@
 /* ==========================================================================
    Django Admin — Django Mombasa Branding
+   Two constant themes: Light and Dark (no "auto" / system-preference mode).
    Overrides Django's built-in CSS custom properties.
    ========================================================================== */
 
-:root {
+/* ── Light theme (default) ── */
+:root,
+html[data-theme="light"] {
     --primary: #1F6B4C;
     --secondary: #0D3F2E;
     --accent: #1F6B4C;
@@ -11,7 +14,7 @@
 
     --body-bg: #F2F4F3;
     --body-fg: #1A1A1A;
-    --body-quiet-color: #6B7280;
+    --body-quiet-color: #555D63;
 
     --header-bg: #0D3F2E;
     --header-color: #fff;
@@ -22,7 +25,7 @@
     --breadcrumbs-link-fg: #1A1A1A;
     --breadcrumbs-bg: #e4e9e7;
 
-    --link-fg: #1F6B4C;
+    --link-fg: #16674A;
     --link-hover-color: #0D3F2E;
     --link-selected-fg: #08281D;
 
@@ -34,8 +37,8 @@
     --button-hover-bg: #08281D;
     --default-button-bg: #1F6B4C;
     --default-button-hover-bg: #0D3F2E;
-    --close-button-bg: #6B7280;
-    --close-button-hover-bg: #4B5563;
+    --close-button-bg: #555D63;
+    --close-button-hover-bg: #3E454A;
 
     --object-tools-bg: #1F6B4C;
     --object-tools-hover-bg: #0D3F2E;
@@ -49,34 +52,36 @@
 
     --selected-bg: #d4e6dd;
     --selected-row: #d4e6dd;
+
+    color-scheme: light;
 }
 
-/* Dark mode overrides */
+/* ── Dark theme ── */
 html[data-theme="dark"] {
-    --primary: #5db88a;
+    --primary: #6ecf9e;
     --secondary: #3d9d6e;
-    --accent: #5db88a;
-    --primary-fg: #1a1a1a;
+    --accent: #6ecf9e;
+    --primary-fg: #121212;
 
-    --body-bg: #1a1a1a;
+    --body-bg: #121212;
     --body-fg: #e8e8e8;
-    --body-quiet-color: #a0a0a0;
+    --body-quiet-color: #b0b0b0;
 
     --header-bg: #0D3F2E;
     --header-color: #ffffff;
     --header-branding-color: #ffffff;
     --header-link-color: #ffffff;
 
-    --breadcrumbs-bg: #242424;
+    --breadcrumbs-bg: #1e1e1e;
     --breadcrumbs-fg: #d0d0d0;
-    --breadcrumbs-link-fg: #7dd4a6;
+    --breadcrumbs-link-fg: #6ecf9e;
 
-    --link-fg: #7dd4a6;
+    --link-fg: #6ecf9e;
     --link-hover-color: #a4e6c3;
     --link-selected-fg: #5db88a;
 
-    --hairline-color: #3a3a3a;
-    --border-color: #3a3a3a;
+    --hairline-color: #333;
+    --border-color: #333;
 
     --button-bg: #3d9d6e;
     --button-fg: #ffffff;
@@ -89,8 +94,8 @@ html[data-theme="dark"] {
     --object-tools-bg: #3d9d6e;
     --object-tools-hover-bg: #5db88a;
 
-    --delete-button-bg: #c44;
-    --delete-button-hover-bg: #e55;
+    --delete-button-bg: #d44;
+    --delete-button-hover-bg: #e66;
 
     --selected-bg: #1f3a2e;
     --selected-row: #1f3a2e;
@@ -98,20 +103,79 @@ html[data-theme="dark"] {
     --message-success-bg: #1f3a2e;
     --message-warning-bg: #3a3520;
     --message-error-bg: #3a2020;
+
+    color-scheme: dark;
 }
 
-/* Dark mode — inputs, selects, and table cells need readable text */
+/* ── Prevent Django's @media (prefers-color-scheme: dark) from overriding ──
+   Re-assert light-theme values so "auto"/system-preference never kicks in. */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary: #1F6B4C;
+        --secondary: #0D3F2E;
+        --accent: #1F6B4C;
+        --primary-fg: #fff;
+        --body-bg: #F2F4F3;
+        --body-fg: #1A1A1A;
+        --body-quiet-color: #555D63;
+        --header-bg: #0D3F2E;
+        --header-color: #fff;
+        --header-branding-color: #fff;
+        --header-link-color: #fff;
+        --breadcrumbs-fg: #0D3F2E;
+        --breadcrumbs-link-fg: #1A1A1A;
+        --breadcrumbs-bg: #e4e9e7;
+        --link-fg: #16674A;
+        --link-hover-color: #0D3F2E;
+        --link-selected-fg: #08281D;
+        --hairline-color: #D6DDD9;
+        --border-color: #D6DDD9;
+        --button-bg: #0D3F2E;
+        --button-fg: #fff;
+        --button-hover-bg: #08281D;
+        --default-button-bg: #1F6B4C;
+        --default-button-hover-bg: #0D3F2E;
+        --close-button-bg: #555D63;
+        --close-button-hover-bg: #3E454A;
+        --object-tools-bg: #1F6B4C;
+        --object-tools-hover-bg: #0D3F2E;
+        --delete-button-bg: #ba2121;
+        --delete-button-hover-bg: #a41515;
+        --message-success-bg: #d4e6dd;
+        --message-warning-bg: #ffc;
+        --message-error-bg: #ffefef;
+        --selected-bg: #d4e6dd;
+        --selected-row: #d4e6dd;
+        color-scheme: light;
+    }
+}
+
+/* ── Hide the "auto" icon from the theme toggle ── */
+.theme-toggle .theme-icon-when-auto,
+.theme-toggle .theme-label-when-auto {
+    display: none !important;
+}
+
+/* ── Dark mode — form inputs ── */
 html[data-theme="dark"] input,
 html[data-theme="dark"] textarea,
 html[data-theme="dark"] select,
 html[data-theme="dark"] .vTextField,
 html[data-theme="dark"] .vURLField,
 html[data-theme="dark"] .vLargeTextField {
-    background-color: #2a2a2a;
+    background-color: #1e1e1e;
     color: #e8e8e8;
-    border-color: #3a3a3a;
+    border-color: #333;
 }
 
+html[data-theme="dark"] input:focus,
+html[data-theme="dark"] textarea:focus,
+html[data-theme="dark"] select:focus {
+    border-color: #6ecf9e;
+    outline-color: #6ecf9e;
+}
+
+/* ── Dark mode — module headers ── */
 html[data-theme="dark"] .module h2,
 html[data-theme="dark"] .module caption,
 html[data-theme="dark"] .inline-group h2 {
@@ -119,14 +183,25 @@ html[data-theme="dark"] .inline-group h2 {
     color: #ffffff;
 }
 
+/* ── Dark mode — filter sidebar ── */
 html[data-theme="dark"] #changelist-filter li.selected a {
-    color: #7dd4a6;
+    color: #6ecf9e;
 }
 
+/* ── Dark mode — help text ── */
 html[data-theme="dark"] .help,
 html[data-theme="dark"] .help-text,
 html[data-theme="dark"] p.help {
-    color: #a0a0a0;
+    color: #b0b0b0;
+}
+
+/* ── Dark mode — table striping for readability ── */
+html[data-theme="dark"] #result_list tbody tr:nth-child(odd) {
+    background-color: #1a1a1a;
+}
+
+html[data-theme="dark"] #result_list tbody tr:nth-child(even) {
+    background-color: #1e1e1e;
 }
 
 /* ── Header branding layout ── */
@@ -164,4 +239,20 @@ html[data-theme="dark"] p.help {
 .calendar td.selected a {
     background: var(--primary);
     color: var(--primary-fg);
+}
+
+/* ── Accessible focus styles ── */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.theme-toggle:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+    border-radius: 4px;
 }

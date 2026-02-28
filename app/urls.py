@@ -17,6 +17,7 @@ membership_patterns = [
 urlpatterns = [
     path('', views.index, name='index'),
     path('events/', views.events, name='events'),
+    path('team/', views.team, name='team'),
     path('membership/', include(membership_patterns)),
     path('page/<slug:slug>/', views.page_detail, name='page_detail'),
 ]
