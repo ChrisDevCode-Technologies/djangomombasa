@@ -1,4 +1,5 @@
 from django.db import models, transaction
+from django.utils.text import slugify
 
 
 class MemberIdSequence(models.Model):
@@ -39,6 +40,7 @@ class Tag(models.Model):
 
 class Event(models.Model):
     name = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=220, unique=True, blank=True)
     tags = models.ManyToManyField(Tag, blank=True, related_name='events')
     date = models.DateTimeField()
     rsvp_link = models.URLField(blank=True)
@@ -46,6 +48,17 @@ class Event(models.Model):
 
     class Meta:
         ordering = ['date']
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base = slugify(self.name)
+            slug = base
+            n = 1
+            while Event.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f'{base}-{n}'
+                n += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -89,6 +102,8 @@ class Member(models.Model):
     year_of_birth = models.PositiveSmallIntegerField(null=True, blank=True)
     experience_level = models.CharField(max_length=10, choices=ExperienceLevel.choices)
     primary_language = models.CharField(max_length=20, choices=PrimaryLanguage.choices)
+    receive_regular_updates = models.BooleanField(default=False, help_text='Receive regular community updates')
+    receive_email_communications = models.BooleanField(default=False, help_text='Receive email communications about events and announcements')
     joined_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
@@ -128,6 +143,44 @@ class Organizer(models.Model):
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
+
+
+class Partner(models.Model):
+    name = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    logo = models.ImageField(upload_to='partners/', blank=True)
+    website_url = models.URLField(blank=True)
+    events = models.ManyToManyField(Event, blank=True, related_name='partners')
+    order = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order', 'name']
+
+    def __str__(self):
+        return self.name
+
+
+class Sponsor(models.Model):
+    class Tier(models.TextChoices):
+        PLATINUM = 'platinum', 'Platinum'
+        GOLD = 'gold', 'Gold'
+        SILVER = 'silver', 'Silver'
+        BRONZE = 'bronze', 'Bronze'
+        COMMUNITY = 'community', 'Community'
+
+    name = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    logo = models.ImageField(upload_to='sponsors/', blank=True)
+    website_url = models.URLField(blank=True)
+    tier = models.CharField(max_length=20, choices=Tier.choices, default=Tier.COMMUNITY)
+    events = models.ManyToManyField(Event, blank=True, related_name='sponsors')
+    order = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order', 'name']
+
+    def __str__(self):
+        return self.name
 
 
 class SocialLink(models.Model):

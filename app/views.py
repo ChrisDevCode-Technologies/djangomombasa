@@ -9,8 +9,7 @@ from .models import Event, Member, Organizer, Page
 
 
 def index(request):
-    events = Event.objects.filter(date__gte=timezone.now())[:6]
-    return render(request, 'index.html', {'events': events})
+    return render(request, 'index.html')
 
 
 def events(request):
@@ -21,6 +20,11 @@ def events(request):
 
 def membership(request):
     return render(request, 'membership.html')
+
+
+def event_detail(request, slug):
+    event = get_object_or_404(Event, slug=slug)
+    return render(request, 'event_detail.html', {'event': event})
 
 
 def team(request):

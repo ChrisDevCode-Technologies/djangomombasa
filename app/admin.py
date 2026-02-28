@@ -3,7 +3,7 @@ from django_summernote.admin import SummernoteModelAdmin
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
-from .models import Event, Member, Organizer, Page, SocialLink, Tag
+from .models import Event, Member, Organizer, Page, Partner, SocialLink, Sponsor, Tag
 
 
 class TagResource(resources.ModelResource):
@@ -35,16 +35,17 @@ class TagAdmin(ImportExportModelAdmin):
 @admin.register(Event)
 class EventAdmin(ImportExportModelAdmin):
     resource_classes = [EventResource]
-    list_display = ('name', 'date')
+    list_display = ('name', 'slug', 'date')
     list_filter = ('tags', 'date')
     filter_horizontal = ('tags',)
+    prepopulated_fields = {'slug': ('name',)}
 
 
 @admin.register(Member)
 class MemberAdmin(ImportExportModelAdmin):
     resource_classes = [MemberResource]
-    list_display = ('member_id', 'name', 'email', 'gender', 'experience_level', 'primary_language', 'joined_at')
-    list_filter = ('gender', 'experience_level', 'primary_language')
+    list_display = ('member_id', 'name', 'email', 'gender', 'experience_level', 'primary_language', 'receive_regular_updates', 'receive_email_communications', 'joined_at')
+    list_filter = ('gender', 'experience_level', 'primary_language', 'receive_regular_updates', 'receive_email_communications')
     search_fields = ('name', 'email')
 
 
@@ -72,6 +73,35 @@ class OrganizerAdmin(ImportExportModelAdmin):
     list_display = ('first_name', 'last_name', 'community_role', 'professional_role', 'location', 'order')
     list_editable = ('order',)
     search_fields = ('first_name', 'last_name', 'community_role')
+
+
+class PartnerResource(resources.ModelResource):
+    class Meta:
+        model = Partner
+
+
+@admin.register(Partner)
+class PartnerAdmin(ImportExportModelAdmin):
+    resource_classes = [PartnerResource]
+    list_display = ('name', 'website_url', 'order')
+    list_editable = ('order',)
+    search_fields = ('name',)
+    filter_horizontal = ('events',)
+
+
+class SponsorResource(resources.ModelResource):
+    class Meta:
+        model = Sponsor
+
+
+@admin.register(Sponsor)
+class SponsorAdmin(ImportExportModelAdmin):
+    resource_classes = [SponsorResource]
+    list_display = ('name', 'tier', 'website_url', 'order')
+    list_editable = ('order',)
+    list_filter = ('tier',)
+    search_fields = ('name',)
+    filter_horizontal = ('events',)
 
 
 @admin.register(SocialLink)

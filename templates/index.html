@@ -75,40 +75,6 @@
     </div>
 </section>
 
-<!-- ===== EVENTS ===== -->
-<section id="events" class="py-5" style="background-color: var(--dm-white);">
-    <div class="container py-4">
-        <div class="text-center mb-5">
-            <h2 class="section-heading fw-bold mx-auto" style="display: inline-block;">Upcoming Events</h2>
-        </div>
-        <div class="row g-4">
-            {% for event in events %}
-            <div class="col-md-4">
-                <div class="card h-100">
-                    <div class="card-body d-flex flex-column">
-                        <div class="d-flex flex-wrap gap-1 mb-3">
-                            {% for tag in event.tags.all %}
-                            <span class="badge bg-primary">{{ tag.name }}</span>
-                            {% endfor %}
-                        </div>
-                        <h5 class="card-title fw-semibold">{{ event.name }}</h5>
-                        <p class="text-muted small mb-2"><i class="bi bi-calendar-event me-1"></i> {{ event.date|date:"F j, Y" }}</p>
-                        <p class="card-text">{{ event.details }}</p>
-                        {% if event.rsvp_link %}
-                        <a href="{{ event.rsvp_link }}" class="btn btn-outline-primary mt-auto" style="width: fit-content;" target="_blank" rel="noopener">RSVP</a>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <div class="col-12 text-center py-4">
-                <p class="text-muted mb-0">No upcoming events right now. Check back soon!</p>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-
 <!-- ===== COMMUNITY VALUES ===== -->
 <section class="py-5">
     <div class="container py-4">

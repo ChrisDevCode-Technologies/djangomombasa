@@ -10,6 +10,7 @@ class MemberJoinForm(forms.ModelForm):
         fields = [
             'name', 'email', 'phone', 'gender',
             'year_of_birth', 'experience_level', 'primary_language',
+            'receive_regular_updates', 'receive_email_communications',
         ]
         widgets = {
             'name': forms.TextInput(attrs={
@@ -38,6 +39,12 @@ class MemberJoinForm(forms.ModelForm):
             }),
             'primary_language': forms.Select(attrs={
                 'class': 'form-select',
+            }),
+            'receive_regular_updates': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+            }),
+            'receive_email_communications': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
             }),
         }
 
