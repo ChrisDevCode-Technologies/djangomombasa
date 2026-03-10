@@ -34,7 +34,6 @@ INSTALLED_APPS = [
     # custom apps
     'accounts',
     'app',
-    'kenya_kuccps',
 ]
 
 # Custom user model — email-based authentication
