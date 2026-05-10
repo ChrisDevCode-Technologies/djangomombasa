@@ -10,12 +10,12 @@
         </button>
         <div class="collapse navbar-collapse" id="mainNav">
             <ul class="navbar-nav ms-auto gap-md-1">
-                <li class="nav-item"><a class="nav-link" href="{% url 'app:index' %}">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'app:index' %}#about">About</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'app:events' %}">Events</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'events_and_activities:events' %}">Events</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'blog_and_news:article_list' %}">Blog</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'blog_and_news:news_list' %}">News</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'app:team' %}">Team</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'app:membership' %}">Membership</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'app:list_apps' %}">Apps</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'membership:info' %}">Membership</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'app:index' %}#connect">Connect</a></li>
             </ul>
         </div>

@@ -139,10 +139,10 @@
                         <hr>
                         <p class="text-muted small mb-3">For privacy, only limited information is shown. You can request your full details or ask for your data to be deleted.</p>
                         <div class="d-flex flex-wrap gap-2">
-                            <a href="{% url 'app:request_details' member.member_id %}" class="btn btn-outline-primary">
+                            <a href="{% url 'membership:request_details' member.member_id %}" class="btn btn-outline-primary">
                                 <i class="bi bi-envelope me-1"></i> Request Full Details
                             </a>
-                            <a href="{% url 'app:request_deletion' member.member_id %}" class="btn btn-outline-danger">
+                            <a href="{% url 'membership:request_deletion' member.member_id %}" class="btn btn-outline-danger">
                                 <i class="bi bi-trash me-1"></i> Request Data Deletion
                             </a>
                         </div>

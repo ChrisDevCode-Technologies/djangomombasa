@@ -52,12 +52,12 @@
 
                         <hr>
 
-                        <a href="{% url 'app:send_member_id' member.member_id %}" class="btn btn-primary w-100 mb-3">
+                        <a href="{% url 'membership:send_member_id' member.member_id %}" class="btn btn-primary w-100 mb-3">
                             <i class="bi bi-envelope me-2"></i>Send ID to My Email
                         </a>
 
                         <div class="d-flex gap-2">
-                            <a href="{% url 'app:membership' %}" class="btn btn-outline-primary flex-fill">Membership</a>
+                            <a href="{% url 'membership:info' %}" class="btn btn-outline-primary flex-fill">Membership</a>
                             <a href="{% url 'app:index' %}" class="btn btn-outline-secondary flex-fill">Home</a>
                         </div>
                     </div>
