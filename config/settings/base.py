@@ -34,6 +34,9 @@ INSTALLED_APPS = [
     # custom apps
     'accounts',
     'app',
+    'membership',
+    'events_and_activities',
+    'blog_and_news',
 ]
 
 # Custom user model — email-based authentication
