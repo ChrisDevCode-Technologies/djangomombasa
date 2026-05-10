@@ -1,8 +1,8 @@
 # Django Mombasa
 
-Community website for the **Django Mombasa** developer community. Manages member registrations, events, CMS pages, and social media links.
+Community website for the **Django Mombasa** developer community. Manages member registrations, events, CMS pages, organizers, partners, sponsors, and social media links.
 
-Built with **Django 6.0.2** and **Python 3.14**.
+Built with **Django 6.0.2**. Project documentation targets **Python 3.14**; the current production Docker image uses **Python 3.12-slim**.
 
 ---
 
@@ -46,7 +46,7 @@ Built with **Django 6.0.2** and **Python 3.14**.
 | Layer | Technology |
 |-------|------------|
 | Framework | Django 6.0.2 |
-| Language | Python 3.14 |
+| Language | Python 3.14 target / Python 3.12 Docker image |
 | Database | SQLite (dev) / PostgreSQL 17 (production) |
 | WSGI Server | Gunicorn |
 | Static Files | WhiteNoise (compression + cache-busting) |
@@ -70,25 +70,40 @@ djangomombasa/
 │   ├── urls.py                 # Root URL configuration
 │   ├── wsgi.py                 # WSGI entrypoint (defaults to prod settings)
 │   └── asgi.py                 # ASGI entrypoint (defaults to prod settings)
-├── app/                        # Main application
-│   ├── models.py               # Data models (Member, Event, Page, Tag, SocialLink)
-│   ├── views.py                # View functions
-│   ├── forms.py                # MemberJoinForm, MemberLookupForm
+├── app/                        # Core pages, CMS, team, partners/sponsors, social links
+│   ├── models.py               # Page, Organizer, Partner, Sponsor, SocialLink
+│   ├── views.py                # Homepage, team, apps, CMS page views
+│   ├── forms.py                # Default Django app file, currently unused
 │   ├── admin.py                # Admin configuration with import/export + Summernote
-│   ├── urls.py                 # App URL patterns
+│   ├── urls.py                 # Core app URL patterns
 │   ├── context_processors.py   # Injects social_links into all templates
 │   ├── apps.py                 # App config
 │   ├── tests.py                # Tests
 │   └── migrations/             # Database migrations
+├── membership/                 # Member registration, lookup, data request flows
+│   ├── models.py               # MemberIdSequence, Member
+│   ├── forms.py                # MemberJoinForm, MemberLookupForm
+│   ├── views.py                # Membership page, join, lookup, email/data request flows
+│   ├── urls.py                 # Routes mounted at /membership/
+│   ├── admin.py                # Member admin with import/export
+│   ├── tests.py                # Member ID generation tests
+│   └── migrations/             # Membership state migrations
+├── events_and_activities/      # Event and tag domain app
+│   ├── models.py               # Event, Tag
+│   ├── views.py                # Event listing and event detail views
+│   ├── urls.py                 # Routes for /events/ and /event/<slug>/
+│   ├── admin.py                # Event and tag admin
+│   ├── templatetags/           # Event template filters
+│   └── migrations/             # Event state migrations
+├── blog_and_news/              # Default Django app scaffold, not installed yet
 ├── templates/
 │   ├── layout/                 # base.html, navbar.html, footer.html
 │   ├── admin/                  # Admin template overrides (base_site.html)
+│   ├── app/                    # App-specific templates
+│   ├── membership/             # Membership templates
+│   ├── events_and_activities/  # Event templates
 │   ├── index.html              # Homepage
-│   ├── events.html             # Events listing
-│   ├── membership.html         # Membership info
-│   ├── join.html               # Registration form
-│   ├── join_success.html       # Registration confirmation
-│   ├── lookup.html             # Member lookup
+│   ├── team.html               # Organizer/team page
 │   └── page.html               # Dynamic CMS page
 ├── static/
 │   ├── css/
@@ -142,7 +157,7 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-Visit `http://localhost:8000` for the site and `http://localhost:8000/admin/` for the admin panel.
+Visit `http://localhost:8000` for the site and `http://localhost:8000/dashboard/` for the admin panel.
 
 ### Docker (Production)
 
@@ -223,6 +238,7 @@ No environment variables required. Sensible defaults are provided in `config/set
 | `SECRET_KEY` | Yes | Django secret key |
 | `ALLOWED_HOSTS` | Yes | Comma-separated hosts (e.g. `example.com,www.example.com`) |
 | `CSRF_TRUSTED_ORIGINS` | No | Comma-separated origins with scheme (e.g. `https://example.com`) |
+| `ENABLE_HTTPS` | No | Set to `true` to enable SSL redirect, secure cookies, and HSTS |
 | `EMAIL_HOST_PASSWORD` | No | Gmail app password for SMTP |
 | `DB_NAME` | No | PostgreSQL database name (default: `djangomombasa`) |
 | `DB_USER` | No | PostgreSQL user (default: `postgres`) |
@@ -240,6 +256,9 @@ See `.env.example` for a full template.
 |-----|-------------|
 | `/` | Homepage with upcoming events |
 | `/events/` | Events listing (upcoming + past) |
+| `/event/<slug>/` | Event detail page |
+| `/team/` | Organizer/team page |
+| `/apps/` | Apps listing page |
 | `/membership/` | Membership info page |
 | `/membership/join/` | Member registration form |
 | `/membership/join/success/<member_id>/` | Registration confirmation |
@@ -248,38 +267,18 @@ See `.env.example` for a full template.
 | `/membership/lookup/request-details/<member_id>/` | Data access request (sends email) |
 | `/membership/lookup/request-deletion/<member_id>/` | Data deletion request (sends email) |
 | `/page/<slug>/` | Dynamic CMS pages |
-| `/admin/` | Django admin panel |
+| `/dashboard/` | Django admin panel |
 | `/summernote/` | Summernote WYSIWYG editor endpoints |
 
 ---
 
 ## Data Models
 
-### MemberIdSequence
+### MemberIdSequence (`membership`)
 
 Singleton table for race-safe member ID generation. Uses `select_for_update()` with atomic transactions to ensure unique, sequential IDs.
 
-### Tag
-
-Event categorisation labels.
-
-| Field | Type |
-|-------|------|
-| `name` | CharField (max 50, unique) |
-
-### Event
-
-Community events.
-
-| Field | Type |
-|-------|------|
-| `name` | CharField (max 200) |
-| `tags` | ManyToManyField (Tag) |
-| `date` | DateTimeField |
-| `rsvp_link` | URLField (optional) |
-| `details` | TextField |
-
-### Member
+### Member (`membership`)
 
 Registered community members with auto-generated IDs.
 
@@ -293,9 +292,32 @@ Registered community members with auto-generated IDs.
 | `year_of_birth` | PositiveSmallIntegerField (optional) |
 | `experience_level` | CharField (choices: Junior, Mid, Senior, For Fun) |
 | `primary_language` | CharField (choices: Python, JavaScript, TypeScript, Java, C#, C++, C, Go, Rust, PHP, Ruby, Swift, Kotlin, Dart, R, SQL, Other) |
+| `receive_regular_updates` | BooleanField |
+| `receive_email_communications` | BooleanField |
 | `joined_at` | DateTimeField (auto) |
 
-### Page
+### Tag (`events_and_activities`)
+
+Event categorisation labels.
+
+| Field | Type |
+|-------|------|
+| `name` | CharField (max 50, unique) |
+
+### Event (`events_and_activities`)
+
+Community events.
+
+| Field | Type |
+|-------|------|
+| `name` | CharField (max 200) |
+| `slug` | SlugField (unique, auto-generated when blank) |
+| `tags` | ManyToManyField (Tag) |
+| `date` | DateTimeField |
+| `rsvp_link` | URLField (optional) |
+| `details` | TextField |
+
+### Page (`app`)
 
 CMS pages editable with Summernote WYSIWYG in the admin.
 
@@ -306,7 +328,49 @@ CMS pages editable with Summernote WYSIWYG in the admin.
 | `content` | TextField (HTML via Summernote) |
 | `updated_at` | DateTimeField (auto) |
 
-### SocialLink
+### Organizer (`app`)
+
+Organizer profiles for the team page.
+
+| Field | Type |
+|-------|------|
+| `first_name` | CharField (max 100) |
+| `last_name` | CharField (max 100) |
+| `community_role` | CharField (max 200) |
+| `professional_role` | CharField (max 200, optional) |
+| `location` | CharField (max 200, optional) |
+| `photo` | ImageField (optional, uploads to `organizers/`) |
+| `github_url`, `linkedin_url`, `twitter_url`, `website_url` | URLField (optional) |
+| `order` | PositiveSmallIntegerField |
+
+### Partner (`app`)
+
+Community partners that can be associated with events.
+
+| Field | Type |
+|-------|------|
+| `name` | CharField (max 200) |
+| `description` | TextField (optional) |
+| `logo` | ImageField (optional, uploads to `partners/`) |
+| `website_url` | URLField (optional) |
+| `events` | ManyToManyField (`events_and_activities.Event`, optional) |
+| `order` | PositiveSmallIntegerField |
+
+### Sponsor (`app`)
+
+Community sponsors that can be associated with events.
+
+| Field | Type |
+|-------|------|
+| `name` | CharField (max 200) |
+| `description` | TextField (optional) |
+| `logo` | ImageField (optional, uploads to `sponsors/`) |
+| `website_url` | URLField (optional) |
+| `tier` | CharField (choices: Platinum, Gold, Silver, Bronze, Community) |
+| `events` | ManyToManyField (`events_and_activities.Event`, optional) |
+| `order` | PositiveSmallIntegerField |
+
+### SocialLink (`app`)
 
 Social media links rendered in the site footer.
 
@@ -321,13 +385,14 @@ Social media links rendered in the site footer.
 
 ## Admin Panel
 
-The admin panel is accessible at `/admin/` and features:
+The admin panel is accessible at `/dashboard/` and features:
 
 - **Branded interface** with the Django Mombasa logo and color scheme
 - **CSV/Excel import/export** for all models via django-import-export
 - **WYSIWYG editor** for Page content via django-summernote
 - **Search and filters** on Member (by name, email, gender, experience level, language)
 - **Tag management** with horizontal filter on Events
+- **Organizer, Partner, Sponsor, and SocialLink management**
 
 ---
 
@@ -339,7 +404,7 @@ Docker is used for **deployment and production** only. For local development, us
 
 The production Docker setup includes:
 
-- **`Dockerfile`** — Python 3.14-slim base, installs PostgreSQL client libraries, copies the project, runs `collectstatic` at build time, and uses `entrypoint.sh` to run migrations and start Gunicorn.
+- **`Dockerfile`** — Python 3.12-slim base, installs dependencies, copies the project, runs `collectstatic` at build time, and uses `entrypoint.sh` to run migrations and start Gunicorn.
 - **`docker-compose.yml`** — Orchestrates two services:
   - `db` — PostgreSQL 17 (Alpine) with a persistent volume and health checks.
   - `web` — Django app served by Gunicorn on port 8000 with a media volume.
@@ -418,7 +483,7 @@ python manage.py makemigrations
 python manage.py test
 
 # Run a specific test
-python manage.py test app.tests.TestClassName.test_method_name
+python manage.py test membership.tests.MemberIdSequenceTest.test_get_next_id_starts_at_zero
 
 # Create superuser
 python manage.py createsuperuser

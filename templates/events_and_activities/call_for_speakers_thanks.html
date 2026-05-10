@@ -1,0 +1,41 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block title %}Proposal Received | Django Mombasa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cfs-thanks-header {
+        background-color: var(--dm-primary);
+        padding-top: 72px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<section class="cfs-thanks-header text-white text-center py-5">
+    <div class="container py-4">
+        <i class="bi bi-check-circle" style="font-size: 3rem; opacity: 0.9;"></i>
+        <h1 class="fw-bold mt-3 mb-2">Thanks for your proposal!</h1>
+        <p class="mb-0" style="opacity: 0.8;">We've received your speaker submission for {{ event.name }}.</p>
+    </div>
+</section>
+
+<!-- Body -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8 text-center">
+                <p class="text-muted mb-4">Our organizers will review your proposal and reach out by email with next steps.</p>
+                <div class="d-flex flex-wrap gap-2 justify-content-center">
+                    <a href="{% url 'events_and_activities:event_detail' event.slug %}" class="btn btn-outline-primary">Back to event</a>
+                    <a href="{% url 'events_and_activities:events' %}" class="btn btn-outline-secondary">All events</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

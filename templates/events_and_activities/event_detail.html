@@ -34,9 +34,21 @@
             <div class="col-lg-8">
                 <p class="lead mb-4" style="white-space: pre-line;">{{ event.details }}</p>
 
-                {% if event.rsvp_link %}
-                <a href="{{ event.rsvp_link }}" class="btn btn-primary btn-lg px-4" target="_blank" rel="noopener">RSVP for This Event</a>
-                {% endif %}
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    {% if event.has_rsvp %}
+                        <a href="{% url 'events_and_activities:event_rsvp' event.slug %}" class="btn btn-primary btn-lg px-4">RSVP for This Event</a>
+                    {% elif event.rsvp_link %}
+                        <a href="{{ event.rsvp_link }}" class="btn btn-primary btn-lg px-4" target="_blank" rel="noopener">RSVP for This Event</a>
+                    {% endif %}
+
+                    {% if event.has_cfp %}
+                        <a href="{% url 'events_and_activities:event_cfs' event.slug %}" class="btn btn-outline-primary btn-lg px-4">Call for Speakers</a>
+                    {% endif %}
+
+                    {% if event.has_cfv %}
+                        <a href="{% url 'events_and_activities:event_cfv' event.slug %}" class="btn btn-outline-primary btn-lg px-4">Call for Volunteers</a>
+                    {% endif %}
+                </div>
 
                 <hr class="my-4">
                 <a href="{% url 'events_and_activities:events' %}" class="text-decoration-none"><i class="bi bi-arrow-left me-1"></i> Back to Events</a>
