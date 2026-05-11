@@ -1,0 +1,42 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block title %}RSVP Confirmed | Django Mombasa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .rsvp-success-header {
+        background-color: var(--dm-primary);
+        padding-top: 72px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<section class="rsvp-success-header text-white text-center py-5">
+    <div class="container py-4">
+        <i class="bi bi-check-circle" style="font-size: 3rem; opacity: 0.9;"></i>
+        <h1 class="fw-bold mt-3 mb-2">You're in, {{ rsvp.member.name }}!</h1>
+        <p class="mb-0" style="opacity: 0.8;">RSVP confirmed for {{ event.name }}.</p>
+    </div>
+</section>
+
+<!-- Details -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-7 text-center">
+                <p class="text-muted mb-2">Member: <strong>{{ rsvp.member.member_id }}</strong></p>
+                <p class="text-muted mb-4">{{ event.date|date:"l, F j, Y · g:i A" }}</p>
+                <div class="d-flex flex-wrap gap-2 justify-content-center">
+                    <a href="{% url 'events_and_activities:event_detail' event.slug %}" class="btn btn-outline-primary">Back to event</a>
+                    <a href="{% url 'events_and_activities:events' %}" class="btn btn-outline-secondary">All events</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
