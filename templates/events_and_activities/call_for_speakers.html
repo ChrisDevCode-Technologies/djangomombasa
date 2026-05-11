@@ -1,0 +1,90 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block title %}Call for Speakers — {{ event.name }} | Django Mombasa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cfs-header {
+        background-color: var(--dm-primary);
+        padding-top: 72px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<section class="cfs-header text-white text-center py-5">
+    <div class="container py-4">
+        <h1 class="fw-bold mb-2">Call for Speakers</h1>
+        <p class="mb-0" style="opacity: 0.8;">{{ event.name }} — {{ event.date|date:"l, F j, Y · g:i A" }}</p>
+    </div>
+</section>
+
+<!-- Form -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                <div class="card">
+                    <div class="card-body p-4">
+                        <p class="text-muted small mb-3">Propose a talk for this event. We'll review your submission and get back to you by email.</p>
+                        <form method="post" novalidate>
+                            {% csrf_token %}
+
+                            <div class="mb-3">
+                                <label for="id_name" class="form-label">Your name <span class="text-danger">*</span></label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                <div class="invalid-feedback d-block">{{ form.name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_email" class="form-label">Email <span class="text-danger">*</span></label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                <div class="invalid-feedback d-block">{{ form.email.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_proposed_talk_title" class="form-label">Proposed talk title <span class="text-danger">*</span></label>
+                                {{ form.proposed_talk_title }}
+                                {% if form.proposed_talk_title.errors %}
+                                <div class="invalid-feedback d-block">{{ form.proposed_talk_title.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_talk_abstract" class="form-label">Talk abstract <span class="text-danger">*</span></label>
+                                {{ form.talk_abstract }}
+                                {% if form.talk_abstract.errors %}
+                                <div class="invalid-feedback d-block">{{ form.talk_abstract.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="id_bio" class="form-label">Short bio</label>
+                                {{ form.bio }}
+                                {% if form.bio.errors %}
+                                <div class="invalid-feedback d-block">{{ form.bio.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 btn-lg">Submit proposal</button>
+                        </form>
+
+                        <hr class="my-4">
+                        <p class="text-center mb-0">
+                            <a href="{% url 'events_and_activities:event_detail' event.slug %}" class="text-decoration-none"><i class="bi bi-arrow-left me-1"></i> Back to event</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

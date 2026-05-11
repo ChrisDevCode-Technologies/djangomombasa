@@ -1,0 +1,45 @@
+/* Widen ONLY the Summernote body editor on Article / NewsItem change forms.
+   The surrounding admin form (title, slug, summary, etc.) keeps its normal
+   column width — only the .note-editor breaks out to the viewport.
+   Loaded via ModelAdmin.Media on ArticleAdmin / NewsItemAdmin only. */
+
+/* Stack the label above the editor inside the body row so the editor gets
+   the full row width (instead of sharing the row with the label column). */
+.form-row.field-body {
+    display: block;
+}
+
+.form-row.field-body > div {
+    display: block;
+    width: 100%;
+    margin-left: 0;
+    padding-left: 0;
+}
+
+.form-row.field-body label {
+    display: block;
+    float: none;
+    width: auto;
+    margin: 0 0 0.5rem 0;
+    padding: 0;
+}
+
+/* Full-bleed: pull the Summernote widget out of its column to span the
+   viewport width. `margin-left: calc(50% - 50vw)` shifts the widget's left
+   edge from the row's centre back to the viewport's left edge. */
+.form-row.field-body .note-editor {
+    position: relative;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin-left: calc(50% - 50vw);
+    box-sizing: border-box;
+}
+
+/* Make the internal Summernote elements honour the new width. */
+.form-row.field-body .note-editor .note-editing-area,
+.form-row.field-body .note-editor .note-editable,
+.form-row.field-body .note-editor .note-codable {
+    width: 100% !important;
+    max-width: none !important;
+    box-sizing: border-box;
+}

@@ -1,0 +1,86 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block title %}{{ article.title }} | Django Mombasa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .article-header {
+        background-color: var(--dm-primary);
+        padding-top: 72px;
+    }
+    .article-body img {
+        max-width: 100%;
+        height: auto;
+    }
+    .article-cover-hero {
+        max-height: 360px;
+        width: 100%;
+        object-fit: cover;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<section class="article-header text-white py-5">
+    <div class="container py-4">
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <span class="badge" style="background-color: rgba(255,255,255,0.2);">{{ article.get_category_display }}</span>
+            {% for topic in article.topics.all %}
+            <span class="badge" style="background-color: rgba(255,255,255,0.2);">{{ topic.name }}</span>
+            {% endfor %}
+        </div>
+        <h1 class="fw-bold mb-2">{{ article.title }}</h1>
+        <p class="mb-0" style="opacity: 0.85;">
+            {% if article.author %}<i class="bi bi-person me-1"></i>{{ article.author }} &middot; {% endif %}
+            <i class="bi bi-calendar3 me-1"></i>{{ article.published_at|date:"l, F j, Y" }}
+        </p>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container py-3">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+
+                {% if article.cover_image %}
+                <img src="{{ article.cover_image.url }}" alt="{{ article.title }}" class="article-cover-hero rounded mb-4">
+                {% endif %}
+
+                {% if article.summary %}
+                <p class="lead text-muted">{{ article.summary }}</p>
+                {% endif %}
+
+                <div class="article-body">{{ article.body|safe }}</div>
+
+                <hr class="my-4">
+                <a href="{% url 'blog_and_news:article_list' %}" class="text-decoration-none"><i class="bi bi-arrow-left me-1"></i> Back to Blog</a>
+            </div>
+        </div>
+
+        {% if related %}
+        <div class="row justify-content-center mt-5">
+            <div class="col-lg-8">
+                <h4 class="fw-bold mb-3">Also read</h4>
+                <div class="row g-3">
+                    {% for other in related %}
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h6 class="fw-semibold mb-2">
+                                    <a href="{% url 'blog_and_news:article_detail' other.slug %}" class="text-decoration-none" style="color: inherit;">{{ other.title }}</a>
+                                </h6>
+                                <p class="text-muted small mb-0">{{ other.published_at|date:"F j, Y" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}

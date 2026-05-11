@@ -1,0 +1,90 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block title %}Call for Volunteers — {{ event.name }} | Django Mombasa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cfv-header {
+        background-color: var(--dm-primary);
+        padding-top: 72px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<section class="cfv-header text-white text-center py-5">
+    <div class="container py-4">
+        <h1 class="fw-bold mb-2">Call for Volunteers</h1>
+        <p class="mb-0" style="opacity: 0.8;">{{ event.name }} — {{ event.date|date:"l, F j, Y · g:i A" }}</p>
+    </div>
+</section>
+
+<!-- Form -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                <div class="card">
+                    <div class="card-body p-4">
+                        <p class="text-muted small mb-3">Help us run this event. Tell us what you can do and when you're available.</p>
+                        <form method="post" novalidate>
+                            {% csrf_token %}
+
+                            <div class="mb-3">
+                                <label for="id_name" class="form-label">Your name <span class="text-danger">*</span></label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                <div class="invalid-feedback d-block">{{ form.name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_email" class="form-label">Email <span class="text-danger">*</span></label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                <div class="invalid-feedback d-block">{{ form.email.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_phone" class="form-label">Phone</label>
+                                {{ form.phone }}
+                                {% if form.phone.errors %}
+                                <div class="invalid-feedback d-block">{{ form.phone.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_skills_or_role" class="form-label">Skills or role <span class="text-danger">*</span></label>
+                                {{ form.skills_or_role }}
+                                {% if form.skills_or_role.errors %}
+                                <div class="invalid-feedback d-block">{{ form.skills_or_role.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="id_availability" class="form-label">Availability <span class="text-danger">*</span></label>
+                                {{ form.availability }}
+                                {% if form.availability.errors %}
+                                <div class="invalid-feedback d-block">{{ form.availability.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 btn-lg">Sign up to volunteer</button>
+                        </form>
+
+                        <hr class="my-4">
+                        <p class="text-center mb-0">
+                            <a href="{% url 'events_and_activities:event_detail' event.slug %}" class="text-decoration-none"><i class="bi bi-arrow-left me-1"></i> Back to event</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

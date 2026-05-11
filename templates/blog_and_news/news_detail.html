@@ -1,0 +1,70 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block title %}{{ news_item.title }} | Django Mombasa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .news-header {
+        background-color: var(--dm-primary);
+        padding-top: 72px;
+    }
+    .news-body img {
+        max-width: 100%;
+        height: auto;
+    }
+    .news-cover-hero {
+        max-height: 360px;
+        width: 100%;
+        object-fit: cover;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<section class="news-header text-white py-5">
+    <div class="container py-4">
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <span class="badge" style="background-color: rgba(255,255,255,0.2);">{{ news_item.get_kind_display }}{% if news_item.issue_number %} &middot; #{{ news_item.issue_number }}{% endif %}</span>
+            {% for topic in news_item.topics.all %}
+            <span class="badge" style="background-color: rgba(255,255,255,0.2);">{{ topic.name }}</span>
+            {% endfor %}
+        </div>
+        <h1 class="fw-bold mb-2">{{ news_item.title }}</h1>
+        <p class="mb-0" style="opacity: 0.85;">
+            <i class="bi bi-calendar3 me-1"></i>{{ news_item.published_at|date:"l, F j, Y" }}
+        </p>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container py-3">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+
+                {% if news_item.cover_image %}
+                <img src="{{ news_item.cover_image.url }}" alt="{{ news_item.title }}" class="news-cover-hero rounded mb-4">
+                {% endif %}
+
+                {% if news_item.event %}
+                <div class="alert alert-light border d-flex align-items-center gap-2 mb-4">
+                    <i class="bi bi-calendar-event"></i>
+                    <span>Recap of <a href="{% url 'events_and_activities:event_detail' news_item.event.slug %}" class="fw-semibold text-decoration-none">{{ news_item.event.name }}</a></span>
+                </div>
+                {% endif %}
+
+                {% if news_item.summary %}
+                <p class="lead text-muted">{{ news_item.summary }}</p>
+                {% endif %}
+
+                <div class="news-body">{{ news_item.body|safe }}</div>
+
+                <hr class="my-4">
+                <a href="{% url 'blog_and_news:news_list' %}" class="text-decoration-none"><i class="bi bi-arrow-left me-1"></i> Back to News</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
