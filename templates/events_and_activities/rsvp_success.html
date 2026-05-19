@@ -28,8 +28,15 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-5 col-md-7 text-center">
+                {% if rsvp.member.kind == 'rsvp_guest' %}
+                <p class="text-muted mb-2">Reference: <strong>{{ rsvp.member.member_id }}</strong></p>
+                {% else %}
                 <p class="text-muted mb-2">Member: <strong>{{ rsvp.member.member_id }}</strong></p>
+                {% endif %}
                 <p class="text-muted mb-4">{{ event.date|date:"l, F j, Y · g:i A" }}</p>
+                {% if rsvp.member.kind == 'rsvp_guest' %}
+                <p class="small mb-4">Want full member benefits? <a href="{% url 'membership:join' %}">Join the community</a>.</p>
+                {% endif %}
                 <div class="d-flex flex-wrap gap-2 justify-content-center">
                     <a href="{% url 'events_and_activities:event_detail' event.slug %}" class="btn btn-outline-primary">Back to event</a>
                     <a href="{% url 'events_and_activities:events' %}" class="btn btn-outline-secondary">All events</a>
