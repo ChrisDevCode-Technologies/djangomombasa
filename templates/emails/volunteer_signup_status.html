@@ -1,0 +1,19 @@
+{% extends "emails/base.html" %}
+{% block subject %}Volunteer application: {{ status_label }} — {{ event.name }}{% endblock %}
+{% block body %}
+<p>Hi {{ signup.name }},</p>
+<p>There is an update on your volunteer application for <strong>{{ event.name }}</strong>.</p>
+<p><strong>Skills / Role:</strong> {{ signup.skills_or_role }}<br>
+<strong>Status:</strong> <span style="display:inline-block;background:#0D3F2E;color:#ffffff;padding:2px 10px;border-radius:999px;font-size:13px;">{{ status_label }}</span></p>
+{% if signup.status == 'approved' %}
+    <p>You're in — thank you for offering your time! We will follow up with the volunteer briefing details shortly.</p>
+{% elif signup.status == 'rejected' %}
+    <p>Thank you for applying. We have a full roster for this event, but we'd love to have you involved in a future event.</p>
+{% elif signup.status == 'hold' %}
+    <p>Your application is currently on hold — we may reach out closer to the event if a spot opens up.</p>
+{% else %}
+    <p>Your application status is now: <strong>{{ status_label }}</strong>.</p>
+{% endif %}
+<p><a href="{{ event_url }}" style="display:inline-block;background:#0D3F2E;color:#ffffff;padding:10px 18px;border-radius:6px;text-decoration:none;">View event page</a></p>
+<p style="color:#6B7280;font-size:13px;">— {{ site_name }}</p>
+{% endblock %}

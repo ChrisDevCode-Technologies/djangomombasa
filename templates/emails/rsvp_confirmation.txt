@@ -1,0 +1,12 @@
+Hi {{ member.name }},
+
+You're confirmed for {{ event.name }}.
+
+When: {{ event.date|date:"l, d F Y · H:i" }}
+Member ID: {{ member.member_id }}
+
+We'll send a reminder the day before the event.
+
+Event page: {{ event_url }}
+
+— {{ site_name }}
