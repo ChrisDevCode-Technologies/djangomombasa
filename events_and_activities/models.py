@@ -31,6 +31,12 @@ class Event(models.Model):
         default=False,
         help_text='Enable the Call for Volunteers section on the event detail page.',
     )
+    reminder_sent_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        editable=False,
+        help_text='When the day-before email reminder was last dispatched (set by the send_event_reminders command).',
+    )
 
     class Meta:
         db_table = 'app_event'
@@ -72,6 +78,7 @@ class SpeakerProposal(models.Model):
         PENDING = 'pending', 'Pending'
         APPROVED = 'approved', 'Approved'
         REJECTED = 'rejected', 'Rejected'
+        HOLD = 'hold', 'On Hold'
 
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='speaker_proposals')
     name = models.CharField(max_length=200)
@@ -95,6 +102,7 @@ class VolunteerSignup(models.Model):
         PENDING = 'pending', 'Pending'
         APPROVED = 'approved', 'Approved'
         REJECTED = 'rejected', 'Rejected'
+        HOLD = 'hold', 'On Hold'
 
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='volunteer_signups')
     name = models.CharField(max_length=200)

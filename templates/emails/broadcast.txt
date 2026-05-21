@@ -1,0 +1,7 @@
+{% if event %}{{ event.name }} — {{ event.date|date:"d F Y · H:i" }}
+
+{% endif %}{{ body }}
+
+{% if event %}Event page: {{ event_url }}
+
+{% endif %}— {{ site_name }}

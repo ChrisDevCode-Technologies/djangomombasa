@@ -1,0 +1,14 @@
+{% extends "emails/base.html" %}
+{% block subject %}{{ site_name }}{% endblock %}
+{% block body %}
+{% if event %}
+<p style="color:#6B7280;font-size:13px;margin:0 0 8px;">{{ event.name }} — {{ event.date|date:"d F Y · H:i" }}{% if context_label %} · {{ context_label }}{% endif %}</p>
+{% elif context_label %}
+<p style="color:#6B7280;font-size:13px;margin:0 0 8px;">{{ context_label }}</p>
+{% endif %}
+<div style="white-space:pre-wrap;">{{ body }}</div>
+{% if event %}
+<p style="margin-top:16px;"><a href="{{ event_url }}" style="display:inline-block;background:#0D3F2E;color:#ffffff;padding:10px 18px;border-radius:6px;text-decoration:none;">View event page</a></p>
+{% endif %}
+<p style="color:#6B7280;font-size:13px;">— {{ site_name }}</p>
+{% endblock %}

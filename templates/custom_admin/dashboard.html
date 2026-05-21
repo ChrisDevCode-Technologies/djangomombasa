@@ -1,0 +1,41 @@
+{% extends "layout/admin/base.html" %}
+
+{% block page_title %}Dashboard{% endblock %}
+{% block page_heading %}Dashboard{% endblock %}
+
+{% block admin_content %}
+    <div class="stat-grid">
+        <div class="stat-tile">
+            <div class="stat-label">Members</div>
+            <div class="stat-value">{{ member_count }}</div>
+        </div>
+        <div class="stat-tile">
+            <div class="stat-label">RSVP Guests</div>
+            <div class="stat-value">{{ guest_count }}</div>
+        </div>
+        <div class="stat-tile">
+            <div class="stat-label">Events</div>
+            <div class="stat-value">{{ event_count }}</div>
+        </div>
+        <div class="stat-tile">
+            <div class="stat-label">Upcoming Events</div>
+            <div class="stat-value">{{ upcoming_event_count }}</div>
+        </div>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h2>Quick actions</h2>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'custom_admin:event_create' %}" class="btn btn-dm-primary">
+                <i class="bi bi-plus-lg"></i> New event
+            </a>
+            <a href="{% url 'custom_admin:member_create' %}" class="btn btn-dm-primary">
+                <i class="bi bi-person-plus"></i> Add member
+            </a>
+            <a href="{% url 'custom_admin:event_list' %}" class="btn btn-dm-outline">Manage events</a>
+            <a href="{% url 'custom_admin:member_list' %}" class="btn btn-dm-outline">Manage members</a>
+        </div>
+    </div>
+{% endblock %}

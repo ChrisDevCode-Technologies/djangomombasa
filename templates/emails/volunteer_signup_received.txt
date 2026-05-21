@@ -1,0 +1,12 @@
+Hi {{ signup.name }},
+
+Thanks for signing up to volunteer at {{ event.name }}.
+
+Skills / Role: {{ signup.skills_or_role }}
+Event: {{ event.name }} — {{ event.date|date:"l, d F Y · H:i" }}
+
+We will review your application and email you again when there is an update.
+
+Event page: {{ event_url }}
+
+— {{ site_name }}

@@ -1,0 +1,92 @@
+{% extends "layout/admin/base.html" %}
+
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block page_heading %}{{ page_title }}{% endblock %}
+
+{% block admin_content %}
+    <form method="post" class="form-section" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger py-2">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        {% if mode == 'edit' and member %}
+            <div class="mb-3">
+                <label class="form-label">Member ID</label>
+                <input type="text" class="form-control" value="{{ member.member_id }}" disabled>
+                <div class="form-text">Auto-assigned and read-only.</div>
+            </div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.name.id_for_label }}" class="form-label">Name</label>
+                {{ form.name }}
+                {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors|join:', ' }}</div>{% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                {{ form.email }}
+                {% if form.email.errors %}<div class="text-danger small mt-1">{{ form.email.errors|join:', ' }}</div>{% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.phone.id_for_label }}" class="form-label">Phone</label>
+                {{ form.phone }}
+                {% if form.phone.errors %}<div class="text-danger small mt-1">{{ form.phone.errors|join:', ' }}</div>{% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.kind.id_for_label }}" class="form-label">Kind</label>
+                {{ form.kind }}
+                {% if form.kind.errors %}<div class="text-danger small mt-1">{{ form.kind.errors|join:', ' }}</div>{% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label for="{{ form.gender.id_for_label }}" class="form-label">Gender</label>
+                {{ form.gender }}
+                {% if form.gender.errors %}<div class="text-danger small mt-1">{{ form.gender.errors|join:', ' }}</div>{% endif %}
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="{{ form.year_of_birth.id_for_label }}" class="form-label">Year of birth</label>
+                {{ form.year_of_birth }}
+                {% if form.year_of_birth.errors %}<div class="text-danger small mt-1">{{ form.year_of_birth.errors|join:', ' }}</div>{% endif %}
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="{{ form.experience_level.id_for_label }}" class="form-label">Experience</label>
+                {{ form.experience_level }}
+                {% if form.experience_level.errors %}<div class="text-danger small mt-1">{{ form.experience_level.errors|join:', ' }}</div>{% endif %}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.primary_language.id_for_label }}" class="form-label">Primary language</label>
+            {{ form.primary_language }}
+            {% if form.primary_language.errors %}<div class="text-danger small mt-1">{{ form.primary_language.errors|join:', ' }}</div>{% endif %}
+        </div>
+
+        <div class="mb-2 form-check">
+            {{ form.receive_regular_updates }}
+            <label class="form-check-label" for="{{ form.receive_regular_updates.id_for_label }}">Receive regular updates</label>
+        </div>
+        <div class="mb-3 form-check">
+            {{ form.receive_email_communications }}
+            <label class="form-check-label" for="{{ form.receive_email_communications.id_for_label }}">Receive email communications</label>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-dm-primary">
+                {% if mode == 'create' %}Add member{% else %}Save changes{% endif %}
+            </button>
+            {% if mode == 'edit' and member %}
+                <a href="{% url 'custom_admin:member_detail' member_id=member.member_id %}" class="btn btn-dm-outline">Cancel</a>
+            {% else %}
+                <a href="{% url 'custom_admin:member_list' %}" class="btn btn-dm-outline">Cancel</a>
+            {% endif %}
+        </div>
+    </form>
+{% endblock %}

@@ -1,0 +1,15 @@
+Hi {{ proposal.name }},
+
+There is an update on your speaker proposal for {{ event.name }}.
+
+Proposed talk: {{ proposal.proposed_talk_title }}
+Status: {{ status_label }}
+
+{% if proposal.status == 'approved' %}Congratulations! Your talk has been accepted. We will reach out shortly with logistics and next steps.
+{% elif proposal.status == 'rejected' %}Thank you for submitting. Unfortunately we are unable to include this proposal in the line-up for this event. We would love to see you submit again for a future event.
+{% elif proposal.status == 'hold' %}Your proposal is currently on hold — we may revisit it later if a slot opens up. We'll keep you posted.
+{% else %}Your proposal status is now: {{ status_label }}.
+{% endif %}
+Event page: {{ event_url }}
+
+— {{ site_name }}

@@ -1,0 +1,11 @@
+Hi {{ member.name }},
+
+A friendly reminder: {{ event.name }} is tomorrow.
+
+When: {{ event.date|date:"l, d F Y · H:i" }}
+
+See you there!
+
+Event page: {{ event_url }}
+
+— {{ site_name }}

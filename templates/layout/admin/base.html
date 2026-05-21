@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block page_title %}Admin{% endblock %} · Django Mombasa</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/custom_admin.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="admin-body">
+    <div class="admin-shell">
+        {% include "layout/admin/sidebar.html" %}
+        <div class="admin-main">
+            <header class="admin-topbar">
+                <h1 class="topbar-title">{% block topbar_title %}{% block page_heading %}{{ block.super }}{% endblock %}{% endblock %}</h1>
+                <div class="topbar-user">
+                    {% if request.user.is_authenticated %}
+                        <i class="bi bi-person-circle"></i>
+                        {{ request.user.email }}
+                    {% endif %}
+                </div>
+            </header>
+
+            <main class="admin-content">
+                {% if messages %}
+                    <div class="admin-messages">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags|default:'info' }} mb-2" role="alert">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% block admin_content %}{% endblock %}
+            </main>
+
+            {% include "layout/admin/footer.html" %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

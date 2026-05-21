@@ -11,7 +11,7 @@ Required environment variables:
     - SECRET_KEY: Django secret key (generate with django.core.management.utils.get_random_secret_key())
     - ALLOWED_HOSTS: Comma-separated list of allowed hosts
     - CSRF_TRUSTED_ORIGINS: Comma-separated list of trusted origins (with scheme)
-    - EMAIL_HOST_PASSWORD: Gmail app password for SMTP
+    - RESEND_API_KEY: Resend API key used as the SMTP password (also accepted via EMAIL_HOST_PASSWORD).
 """
 
 from .base import *  # noqa: F401, F403

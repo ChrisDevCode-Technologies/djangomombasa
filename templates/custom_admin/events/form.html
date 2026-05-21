@@ -1,0 +1,78 @@
+{% extends "layout/admin/base.html" %}
+
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block page_heading %}{{ page_title }}{% endblock %}
+
+{% block extra_css %}
+    {{ form.media.css }}
+{% endblock %}
+
+{% block admin_content %}
+    <form method="post" class="form-section" novalidate>
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label for="{{ form.name.id_for_label }}" class="form-label">Name</label>
+            {{ form.name }}
+            {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors|join:', ' }}</div>{% endif %}
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.date.id_for_label }}" class="form-label">Date &amp; time</label>
+                {{ form.date }}
+                {% if form.date.errors %}<div class="text-danger small mt-1">{{ form.date.errors|join:', ' }}</div>{% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.rsvp_link.id_for_label }}" class="form-label">External RSVP link</label>
+                {{ form.rsvp_link }}
+                <div class="form-text">Used when the internal RSVP form is disabled.</div>
+                {% if form.rsvp_link.errors %}<div class="text-danger small mt-1">{{ form.rsvp_link.errors|join:', ' }}</div>{% endif %}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.tags.id_for_label }}" class="form-label">Tags</label>
+            {{ form.tags }}
+            <div class="form-text">Hold ⌘ / Ctrl to select multiple.</div>
+            {% if form.tags.errors %}<div class="text-danger small mt-1">{{ form.tags.errors|join:', ' }}</div>{% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.details.id_for_label }}" class="form-label">Details</label>
+            {{ form.details }}
+            {% if form.details.errors %}<div class="text-danger small mt-1">{{ form.details.errors|join:', ' }}</div>{% endif %}
+        </div>
+
+        <div class="mb-2 form-check">
+            {{ form.has_rsvp }}
+            <label class="form-check-label" for="{{ form.has_rsvp.id_for_label }}">Enable internal RSVP form</label>
+        </div>
+        <div class="mb-2 form-check">
+            {{ form.has_cfp }}
+            <label class="form-check-label" for="{{ form.has_cfp.id_for_label }}">Enable Call for Speakers</label>
+        </div>
+        <div class="mb-3 form-check">
+            {{ form.has_cfv }}
+            <label class="form-check-label" for="{{ form.has_cfv.id_for_label }}">Enable Call for Volunteers</label>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-dm-primary">
+                {% if mode == 'create' %}Create event{% else %}Save changes{% endif %}
+            </button>
+            {% if mode == 'edit' and event %}
+                <a href="{% url 'custom_admin:event_detail' slug=event.slug %}" class="btn btn-dm-outline">Cancel</a>
+                <a href="{% url 'events_and_activities:event_detail' slug=event.slug %}" class="btn btn-dm-outline ms-auto" target="_blank" rel="noopener">
+                    <i class="bi bi-box-arrow-up-right"></i> View public page
+                </a>
+            {% else %}
+                <a href="{% url 'custom_admin:event_list' %}" class="btn btn-dm-outline">Cancel</a>
+            {% endif %}
+        </div>
+    </form>
+{% endblock %}
+
+{% block extra_js %}
+    {{ form.media.js }}
+{% endblock %}

@@ -5,6 +5,11 @@ from .models import Member
 
 
 class MemberJoinForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for required_name in ('gender', 'experience_level', 'primary_language'):
+            self.fields[required_name].required = True
+
     class Meta:
         model = Member
         fields = [

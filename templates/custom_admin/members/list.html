@@ -1,0 +1,62 @@
+{% extends "layout/admin/base.html" %}
+
+{% block page_title %}Members{% endblock %}
+{% block page_heading %}Members{% endblock %}
+
+{% block admin_content %}
+    <div class="d-flex justify-content-between align-items-center mb-3 gap-2 flex-wrap">
+        <form method="get" class="d-flex gap-2" style="flex: 1; max-width: 420px;">
+            <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Search by name, email, or member ID">
+            <button type="submit" class="btn btn-dm-outline">
+                <i class="bi bi-search"></i>
+            </button>
+            {% if q %}
+                <a href="{% url 'custom_admin:member_list' %}" class="btn btn-dm-outline">Clear</a>
+            {% endif %}
+        </form>
+        <a href="{% url 'custom_admin:member_create' %}" class="btn btn-dm-primary">
+            <i class="bi bi-person-plus"></i> Add member
+        </a>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h2>All members</h2>
+            <span class="text-muted small">{{ members|length }} result{{ members|length|pluralize }}</span>
+        </div>
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Member ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Kind</th>
+                        <th>Joined</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for member in members %}
+                        <tr>
+                            <td><a href="{% url 'custom_admin:member_detail' member_id=member.member_id %}">{{ member.member_id }}</a></td>
+                            <td>{{ member.name }}</td>
+                            <td>{{ member.email }}</td>
+                            <td>{{ member.get_kind_display }}</td>
+                            <td>{{ member.joined_at|date:"d M Y" }}</td>
+                            <td class="text-end">
+                                <a href="{% url 'custom_admin:member_edit' member_id=member.member_id %}" class="btn btn-sm btn-dm-outline">Edit</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr class="empty-row">
+                            <td colspan="6">
+                                {% if q %}No members match "{{ q }}".{% else %}No members yet.{% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

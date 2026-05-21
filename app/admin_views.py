@@ -1,0 +1,300 @@
+from functools import wraps
+
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.forms import AuthenticationForm
+from django.db.models import Q
+from django.http import HttpResponseNotAllowed
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.utils import timezone
+
+from events_and_activities.models import Event, SpeakerProposal, VolunteerSignup
+from membership.models import Member
+
+from . import emails as notifications
+from .forms import BroadcastForm, EventForm, MemberAdminForm
+
+
+def staff_required(view):
+    @wraps(view)
+    @login_required(login_url='custom_admin:admin_login')
+    @user_passes_test(lambda u: u.is_staff, login_url='custom_admin:admin_login')
+    def _wrapped(request, *args, **kwargs):
+        return view(request, *args, **kwargs)
+    return _wrapped
+
+
+def admin_login(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('custom_admin:dashboard')
+
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            if user.is_staff:
+                login(request, user)
+                next_url = request.GET.get('next') or reverse('custom_admin:dashboard')
+                return redirect(next_url)
+            form.add_error(None, 'This account does not have staff access.')
+    else:
+        form = AuthenticationForm(request)
+
+    return render(request, 'custom_admin/login.html', {'form': form})
+
+
+def admin_logout(request):
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+    logout(request)
+    return redirect('custom_admin:admin_login')
+
+
+@staff_required
+def dashboard(request):
+    now = timezone.now()
+    context = {
+        'event_count': Event.objects.count(),
+        'upcoming_event_count': Event.objects.filter(date__gte=now).count(),
+        'member_count': Member.objects.filter(kind=Member.Kind.MEMBER).count(),
+        'guest_count': Member.objects.filter(kind=Member.Kind.RSVP_GUEST).count(),
+    }
+    return render(request, 'custom_admin/dashboard.html', context)
+
+
+@staff_required
+def event_list(request):
+    now = timezone.now()
+    upcoming = Event.objects.filter(date__gte=now).order_by('date').prefetch_related('tags')
+    past = Event.objects.filter(date__lt=now).order_by('-date').prefetch_related('tags')
+    return render(request, 'custom_admin/events/list.html', {
+        'upcoming_events': upcoming,
+        'past_events': past,
+    })
+
+
+@staff_required
+def event_detail(request, slug):
+    event = get_object_or_404(
+        Event.objects.prefetch_related('tags', 'rsvps__member', 'speaker_proposals', 'volunteer_signups'),
+        slug=slug,
+    )
+    return render(request, 'custom_admin/events/detail.html', {
+        'event': event,
+        'rsvp_count': event.rsvps.count(),
+        'speaker_proposal_count': event.speaker_proposals.count(),
+        'volunteer_signup_count': event.volunteer_signups.count(),
+    })
+
+
+@staff_required
+def event_create(request):
+    if request.method == 'POST':
+        form = EventForm(request.POST)
+        if form.is_valid():
+            event = form.save()
+            messages.success(request, f'Event "{event.name}" created.')
+            return redirect('custom_admin:event_detail', slug=event.slug)
+    else:
+        form = EventForm()
+    return render(request, 'custom_admin/events/form.html', {
+        'form': form,
+        'mode': 'create',
+        'page_title': 'New Event',
+    })
+
+
+@staff_required
+def event_edit(request, slug):
+    event = get_object_or_404(Event, slug=slug)
+    if request.method == 'POST':
+        form = EventForm(request.POST, instance=event)
+        if form.is_valid():
+            event = form.save()
+            messages.success(request, f'Event "{event.name}" updated.')
+            return redirect('custom_admin:event_detail', slug=event.slug)
+    else:
+        form = EventForm(instance=event)
+    return render(request, 'custom_admin/events/form.html', {
+        'form': form,
+        'event': event,
+        'mode': 'edit',
+        'page_title': f'Edit: {event.name}',
+    })
+
+
+@staff_required
+def member_list(request):
+    q = request.GET.get('q', '').strip()
+    members = Member.objects.all().order_by('-joined_at')
+    if q:
+        members = members.filter(
+            Q(name__icontains=q)
+            | Q(email__icontains=q)
+            | Q(member_id__icontains=q)
+        )
+    return render(request, 'custom_admin/members/list.html', {
+        'members': members,
+        'q': q,
+    })
+
+
+@staff_required
+def member_detail(request, member_id):
+    member = get_object_or_404(Member, member_id=member_id)
+    return render(request, 'custom_admin/members/detail.html', {'member': member})
+
+
+@staff_required
+def member_create(request):
+    if request.method == 'POST':
+        form = MemberAdminForm(request.POST)
+        if form.is_valid():
+            member = form.save()
+            messages.success(request, f'Member {member.member_id} ({member.name}) created.')
+            return redirect('custom_admin:member_detail', member_id=member.member_id)
+    else:
+        form = MemberAdminForm()
+    return render(request, 'custom_admin/members/form.html', {
+        'form': form,
+        'mode': 'create',
+        'page_title': 'New Member',
+    })
+
+
+@staff_required
+def member_edit(request, member_id):
+    member = get_object_or_404(Member, member_id=member_id)
+    if request.method == 'POST':
+        form = MemberAdminForm(request.POST, instance=member)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Member {member.member_id} updated.')
+            return redirect('custom_admin:member_detail', member_id=member.member_id)
+    else:
+        form = MemberAdminForm(instance=member)
+    return render(request, 'custom_admin/members/form.html', {
+        'form': form,
+        'member': member,
+        'mode': 'edit',
+        'page_title': f'Edit: {member.name}',
+    })
+
+
+def _update_status(request, instance, allowed_statuses, label, notify=None):
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+    new_status = request.POST.get('status', '').strip()
+    if new_status not in allowed_statuses:
+        messages.error(request, f'Invalid status "{new_status}".')
+    else:
+        previous_status = instance.status
+        if previous_status == new_status:
+            messages.info(request, f'{label} #{instance.pk} is already {instance.get_status_display()}.')
+        else:
+            instance.status = new_status
+            instance.save(update_fields=['status'])
+            sent = bool(notify and notify(instance, previous_status))
+            if sent:
+                messages.success(
+                    request,
+                    f'{label} #{instance.pk} marked {instance.get_status_display()} — email sent to {instance.email}.',
+                )
+            else:
+                messages.success(
+                    request,
+                    f'{label} #{instance.pk} marked {instance.get_status_display()}.',
+                )
+                if notify is not None:
+                    messages.warning(request, f'Status email to {instance.email} failed to send — check the mail server logs.')
+    return redirect('custom_admin:event_detail', slug=instance.event.slug)
+
+
+def _audience_recipients(audience: str, event=None):
+    """Resolve an audience choice + optional event into (label, list_of_email_strings)."""
+    if audience == 'members':
+        qs = Member.objects.filter(kind=Member.Kind.MEMBER).exclude(email='')
+        return 'All community members', list(qs.values_list('email', flat=True))
+    if audience == 'members_subscribed':
+        qs = (
+            Member.objects.filter(kind=Member.Kind.MEMBER, receive_email_communications=True)
+            .exclude(email='')
+        )
+        return 'Members opted in to email', list(qs.values_list('email', flat=True))
+    if audience == 'rsvps' and event is not None:
+        qs = event.rsvps.select_related('member').exclude(member__email='')
+        return f'RSVPs for {event.name}', [r.member.email for r in qs]
+    if audience == 'speakers' and event is not None:
+        qs = event.speaker_proposals.exclude(email='')
+        return f'Speaker proposers for {event.name}', list(qs.values_list('email', flat=True))
+    if audience == 'speakers_approved' and event is not None:
+        qs = event.speaker_proposals.filter(status=SpeakerProposal.Status.APPROVED).exclude(email='')
+        return f'Approved speakers for {event.name}', list(qs.values_list('email', flat=True))
+    if audience == 'volunteers' and event is not None:
+        qs = event.volunteer_signups.exclude(email='')
+        return f'Volunteers for {event.name}', list(qs.values_list('email', flat=True))
+    if audience == 'volunteers_approved' and event is not None:
+        qs = event.volunteer_signups.filter(status=VolunteerSignup.Status.APPROVED).exclude(email='')
+        return f'Approved volunteers for {event.name}', list(qs.values_list('email', flat=True))
+    return 'Unknown audience', []
+
+
+@staff_required
+def broadcast(request):
+    preview = None
+    if request.method == 'POST':
+        form = BroadcastForm(request.POST)
+        if form.is_valid():
+            audience = form.cleaned_data['audience']
+            event = form.cleaned_data.get('event')
+            label, emails = _audience_recipients(audience, event)
+            if request.POST.get('action') == 'preview':
+                preview = {'label': label, 'emails': emails, 'count': len(emails)}
+            else:
+                if not emails:
+                    messages.warning(request, f'No recipients found for: {label}.')
+                else:
+                    sent = notifications.send_broadcast(
+                        subject=form.cleaned_data['subject'],
+                        body=form.cleaned_data['body'],
+                        recipients=emails,
+                        event=event,
+                        context_label=label,
+                    )
+                    if sent:
+                        messages.success(request, f'Sent {sent} email(s) to: {label}.')
+                    else:
+                        messages.error(request, 'No emails were sent. Check the mail server logs.')
+                    return redirect('custom_admin:broadcast')
+    else:
+        form = BroadcastForm(initial={'event': request.GET.get('event') or None})
+    return render(request, 'custom_admin/messaging/broadcast.html', {
+        'form': form,
+        'preview': preview,
+    })
+
+
+@staff_required
+def speaker_proposal_status(request, pk):
+    proposal = get_object_or_404(SpeakerProposal.objects.select_related('event'), pk=pk)
+    return _update_status(
+        request,
+        proposal,
+        {s.value for s in SpeakerProposal.Status},
+        label='Speaker proposal',
+        notify=notifications.send_speaker_proposal_status_changed,
+    )
+
+
+@staff_required
+def volunteer_signup_status(request, pk):
+    signup = get_object_or_404(VolunteerSignup.objects.select_related('event'), pk=pk)
+    return _update_status(
+        request,
+        signup,
+        {s.value for s in VolunteerSignup.Status},
+        label='Volunteer signup',
+        notify=notifications.send_volunteer_signup_status_changed,
+    )

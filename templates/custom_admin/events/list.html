@@ -1,0 +1,99 @@
+{% extends "layout/admin/base.html" %}
+
+{% block page_title %}Events{% endblock %}
+{% block page_heading %}Events{% endblock %}
+
+{% block admin_content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div></div>
+        <a href="{% url 'custom_admin:event_create' %}" class="btn btn-dm-primary">
+            <i class="bi bi-plus-lg"></i> New event
+        </a>
+    </div>
+
+    <div class="admin-card mb-4">
+        <div class="admin-card-header">
+            <h2>Upcoming</h2>
+            <span class="text-muted small">{{ upcoming_events|length }} event{{ upcoming_events|length|pluralize }}</span>
+        </div>
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Date</th>
+                        <th>Tags</th>
+                        <th>Flags</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in upcoming_events %}
+                        <tr>
+                            <td><a href="{% url 'custom_admin:event_detail' slug=event.slug %}">{{ event.name }}</a></td>
+                            <td>{{ event.date|date:"D, d M Y · H:i" }}</td>
+                            <td>
+                                {% for tag in event.tags.all %}
+                                    <span class="tag-pill">{{ tag.name }}</span>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% if event.has_rsvp %}<span class="flag-badge">RSVP</span>{% endif %}
+                                {% if event.has_cfp %}<span class="flag-badge">CFP</span>{% endif %}
+                                {% if event.has_cfv %}<span class="flag-badge">CFV</span>{% endif %}
+                            </td>
+                            <td class="text-end">
+                                <a href="{% url 'custom_admin:event_edit' slug=event.slug %}" class="btn btn-sm btn-dm-outline">Edit</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr class="empty-row"><td colspan="5">No upcoming events.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h2>Past</h2>
+            <span class="text-muted small">{{ past_events|length }} event{{ past_events|length|pluralize }}</span>
+        </div>
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Date</th>
+                        <th>Tags</th>
+                        <th>Flags</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in past_events %}
+                        <tr>
+                            <td><a href="{% url 'custom_admin:event_detail' slug=event.slug %}">{{ event.name }}</a></td>
+                            <td>{{ event.date|date:"D, d M Y · H:i" }}</td>
+                            <td>
+                                {% for tag in event.tags.all %}
+                                    <span class="tag-pill">{{ tag.name }}</span>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% if event.has_rsvp %}<span class="flag-badge">RSVP</span>{% endif %}
+                                {% if event.has_cfp %}<span class="flag-badge">CFP</span>{% endif %}
+                                {% if event.has_cfv %}<span class="flag-badge">CFV</span>{% endif %}
+                            </td>
+                            <td class="text-end">
+                                <a href="{% url 'custom_admin:event_edit' slug=event.slug %}" class="btn btn-sm btn-dm-outline">Edit</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr class="empty-row"><td colspan="5">No past events.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

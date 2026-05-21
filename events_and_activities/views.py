@@ -3,7 +3,9 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 
-from .forms import RSVPForm, SpeakerProposalForm, VolunteerSignupForm
+from app import emails as notifications
+
+from .forms import RSVPForm, RSVPGuestForm, SpeakerProposalForm, VolunteerSignupForm
 from .models import Event, RSVP
 
 
@@ -28,18 +30,38 @@ def _get_event_with_flag(slug, flag):
 @require_http_methods(['GET', 'POST'])
 def rsvp(request, slug):
     event = _get_event_with_flag(slug, 'has_rsvp')
+    member_form = RSVPForm()
+    guest_form = RSVPGuestForm()
+    active_tab = 'member'
     if request.method == 'POST':
-        form = RSVPForm(request.POST)
-        if form.is_valid():
-            member = form.cleaned_member
-            if RSVP.objects.filter(event=event, member=member).exists():
-                form.add_error('member_identifier', f'{member.member_id} has already RSVPed to this event.')
-            else:
-                rsvp_obj = RSVP.objects.create(event=event, member=member)
-                return redirect('events_and_activities:event_rsvp_success', slug=event.slug, rsvp_id=rsvp_obj.pk)
-    else:
-        form = RSVPForm()
-    return render(request, 'events_and_activities/rsvp.html', {'event': event, 'form': form})
+        mode = request.POST.get('mode', 'member')
+        if mode == 'guest':
+            active_tab = 'guest'
+            guest_form = RSVPGuestForm(request.POST)
+            if guest_form.is_valid():
+                guest = guest_form.resolve_or_create_guest()
+                if RSVP.objects.filter(event=event, member=guest).exists():
+                    guest_form.add_error('email', 'This email has already RSVPed to this event.')
+                else:
+                    rsvp_obj = RSVP.objects.create(event=event, member=guest)
+                    notifications.send_rsvp_confirmation(rsvp_obj)
+                    return redirect('events_and_activities:event_rsvp_success', slug=event.slug, rsvp_id=rsvp_obj.pk)
+        else:
+            member_form = RSVPForm(request.POST)
+            if member_form.is_valid():
+                member = member_form.cleaned_member
+                if RSVP.objects.filter(event=event, member=member).exists():
+                    member_form.add_error('member_identifier', f'{member.member_id} has already RSVPed to this event.')
+                else:
+                    rsvp_obj = RSVP.objects.create(event=event, member=member)
+                    notifications.send_rsvp_confirmation(rsvp_obj)
+                    return redirect('events_and_activities:event_rsvp_success', slug=event.slug, rsvp_id=rsvp_obj.pk)
+    return render(request, 'events_and_activities/rsvp.html', {
+        'event': event,
+        'member_form': member_form,
+        'guest_form': guest_form,
+        'active_tab': active_tab,
+    })
 
 
 def rsvp_success(request, slug, rsvp_id):
@@ -57,6 +79,7 @@ def call_for_speakers(request, slug):
             proposal = form.save(commit=False)
             proposal.event = event
             proposal.save()
+            notifications.send_speaker_proposal_received(proposal)
             return redirect('events_and_activities:event_cfs_thanks', slug=event.slug)
     else:
         form = SpeakerProposalForm()
@@ -77,6 +100,7 @@ def call_for_volunteers(request, slug):
             signup = form.save(commit=False)
             signup.event = event
             signup.save()
+            notifications.send_volunteer_signup_received(signup)
             return redirect('events_and_activities:event_cfv_thanks', slug=event.slug)
     else:
         form = VolunteerSignupForm()

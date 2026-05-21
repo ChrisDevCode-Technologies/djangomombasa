@@ -1,0 +1,46 @@
+{% load static %}
+{% with current=request.resolver_match.url_name %}
+<aside class="admin-sidebar">
+    <a href="{% url 'custom_admin:dashboard' %}" class="sidebar-brand">
+        <img src="{% static 'images/logo.jpg' %}" alt="Django Mombasa">
+        <span>Admin</span>
+    </a>
+
+    <nav class="nav flex-column">
+        <a class="nav-link {% if current == 'dashboard' %}active{% endif %}" href="{% url 'custom_admin:dashboard' %}">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+        <a class="nav-link {% if current == 'event_list' or current == 'event_create' or current == 'event_edit' or current == 'event_detail' %}active{% endif %}" href="{% url 'custom_admin:event_list' %}">
+            <i class="bi bi-calendar-event"></i> Events
+        </a>
+        <a class="nav-link {% if current == 'member_list' or current == 'member_create' or current == 'member_edit' or current == 'member_detail' %}active{% endif %}" href="{% url 'custom_admin:member_list' %}">
+            <i class="bi bi-people"></i> Members
+        </a>
+        <a class="nav-link {% if current == 'broadcast' %}active{% endif %}" href="{% url 'custom_admin:broadcast' %}">
+            <i class="bi bi-megaphone"></i> Messaging
+        </a>
+
+        <div class="sidebar-divider"></div>
+
+        <a class="nav-link" href="/" target="_blank" rel="noopener">
+            <i class="bi bi-box-arrow-up-right"></i> View public site
+        </a>
+        <a class="nav-link" href="/dashboard/" target="_blank" rel="noopener">
+            <i class="bi bi-gear"></i> Django admin
+        </a>
+
+        <div class="sidebar-divider"></div>
+
+        <form method="post" action="{% url 'custom_admin:admin_logout' %}" class="logout-form">
+            {% csrf_token %}
+            <button type="submit">
+                <i class="bi bi-box-arrow-left"></i> Sign out
+            </button>
+        </form>
+    </nav>
+
+    <div class="sidebar-footer">
+        Django Mombasa
+    </div>
+</aside>
+{% endwith %}
