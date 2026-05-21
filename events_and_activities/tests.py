@@ -2,9 +2,9 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from membership.models import Member
+from membership.models import Member, RSVPGuest
 
-from .forms import RSVPForm
+from .forms import RSVPForm, RSVPGuestForm
 from .models import Event, RSVP
 
 
@@ -78,6 +78,94 @@ class RSVPViewTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, 'has already RSVPed')
         self.assertEqual(RSVP.objects.filter(event=event, member=member).count(), 1)
+
+
+class RSVPGuestFlowTests(TestCase):
+    def test_guest_rsvp_creates_guest_and_rsvp(self):
+        event = _make_event(has_rsvp=True, name='Guest Welcome')
+        resp = self.client.post(
+            reverse('events_and_activities:event_rsvp', args=[event.slug]),
+            {
+                'mode': 'guest',
+                'name': 'Grace Guest',
+                'email': 'grace@example.com',
+                'receive_email_communications': 'on',
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        guest = RSVPGuest.objects.get(email='grace@example.com')
+        self.assertEqual(guest.name, 'Grace Guest')
+        self.assertEqual(guest.kind, Member.Kind.RSVP_GUEST)
+        self.assertTrue(guest.receive_email_communications)
+        self.assertTrue(RSVP.objects.filter(event=event, member=guest).exists())
+
+    def test_guest_rsvp_reuses_existing_member_email(self):
+        event = _make_event(has_rsvp=True, name='Reuse Event')
+        existing = _make_member(member_id='DM-300', email='existing@example.com')
+        resp = self.client.post(
+            reverse('events_and_activities:event_rsvp', args=[event.slug]),
+            {
+                'mode': 'guest',
+                'name': 'Ignored Name',
+                'email': 'existing@example.com',
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(Member.objects.filter(email='existing@example.com').count(), 1)
+        rsvp_obj = RSVP.objects.get(event=event)
+        self.assertEqual(rsvp_obj.member.pk, existing.pk)
+
+    def test_guest_rsvp_reuses_existing_guest_email(self):
+        event_a = _make_event(has_rsvp=True, name='Event A')
+        event_b = _make_event(has_rsvp=True, name='Event B')
+        self.client.post(
+            reverse('events_and_activities:event_rsvp', args=[event_a.slug]),
+            {'mode': 'guest', 'name': 'Repeat Guest', 'email': 'repeat@example.com'},
+        )
+        self.client.post(
+            reverse('events_and_activities:event_rsvp', args=[event_b.slug]),
+            {'mode': 'guest', 'name': 'Repeat Guest', 'email': 'repeat@example.com'},
+        )
+        self.assertEqual(Member.objects.filter(email='repeat@example.com').count(), 1)
+        guest = RSVPGuest.objects.get(email='repeat@example.com')
+        self.assertEqual(RSVP.objects.filter(member=guest).count(), 2)
+
+    def test_guest_duplicate_rsvp_rejected(self):
+        event = _make_event(has_rsvp=True, name='Dup Guest Event')
+        self.client.post(
+            reverse('events_and_activities:event_rsvp', args=[event.slug]),
+            {'mode': 'guest', 'name': 'Dup Guest', 'email': 'dup@example.com'},
+        )
+        resp = self.client.post(
+            reverse('events_and_activities:event_rsvp', args=[event.slug]),
+            {'mode': 'guest', 'name': 'Dup Guest', 'email': 'dup@example.com'},
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'has already RSVPed')
+        self.assertEqual(RSVP.objects.filter(event=event).count(), 1)
+
+    def test_guest_form_requires_name_and_email(self):
+        form = RSVPGuestForm(data={'name': '', 'email': ''})
+        self.assertFalse(form.is_valid())
+        self.assertIn('name', form.errors)
+        self.assertIn('email', form.errors)
+
+    def test_member_form_ignores_rsvp_guest_email(self):
+        # A guest's email should NOT be resolvable through the members-only RSVPForm.
+        guest = RSVPGuest(name='Lone Guest', email='lone@example.com')
+        guest.save()
+        form = RSVPForm(data={'member_identifier': 'lone@example.com'})
+        self.assertFalse(form.is_valid())
+        self.assertIn('member_identifier', form.errors)
+
+    def test_rsvp_view_renders_both_forms(self):
+        event = _make_event(has_rsvp=True, name='Two Form Event')
+        resp = self.client.get(reverse('events_and_activities:event_rsvp', args=[event.slug]))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'I\'m a member')
+        self.assertContains(resp, 'RSVP as a guest')
+        self.assertContains(resp, 'name="mode" value="member"')
+        self.assertContains(resp, 'name="mode" value="guest"')
 
 
 class CFPViewTests(TestCase):

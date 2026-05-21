@@ -1,0 +1,88 @@
+{% extends "layout/admin/base.html" %}
+
+{% block page_title %}Messaging{% endblock %}
+{% block page_heading %}Messaging{% endblock %}
+
+{% block admin_content %}
+    <div class="admin-card mb-4">
+        <div class="admin-card-header">
+            <h2>Send a message</h2>
+            <span class="text-muted small">From {{ request.user.email }} · via info@djangomombasa.org</span>
+        </div>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="{{ form.audience.id_for_label }}" class="form-label">Audience</label>
+                {{ form.audience }}
+                {% if form.audience.help_text %}<div class="form-text">{{ form.audience.help_text }}</div>{% endif %}
+                {% for err in form.audience.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.event.id_for_label }}" class="form-label">Event (optional)</label>
+                {{ form.event }}
+                {% if form.event.help_text %}<div class="form-text">{{ form.event.help_text }}</div>{% endif %}
+                {% for err in form.event.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.subject.id_for_label }}" class="form-label">Subject</label>
+                {{ form.subject }}
+                {% for err in form.subject.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.body.id_for_label }}" class="form-label">Message</label>
+                {{ form.body }}
+                {% if form.body.help_text %}<div class="form-text">{{ form.body.help_text }}</div>{% endif %}
+                {% for err in form.body.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+            </div>
+
+            <div class="form-check mb-3">
+                {{ form.confirm }}
+                <label class="form-check-label" for="{{ form.confirm.id_for_label }}">{{ form.confirm.label }}</label>
+                {% for err in form.confirm.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" name="action" value="preview" class="btn btn-dm-outline">
+                    <i class="bi bi-eye"></i> Preview recipients
+                </button>
+                <button type="submit" name="action" value="send" class="btn btn-dm-primary">
+                    <i class="bi bi-send"></i> Send message
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if preview %}
+        <div class="admin-card mb-4">
+            <div class="admin-card-header">
+                <h2>Preview · {{ preview.label }}</h2>
+                <span class="text-muted small">{{ preview.count }} recipient(s)</span>
+            </div>
+            {% if preview.emails %}
+                <ul class="mb-0" style="max-height:240px;overflow:auto;">
+                    {% for email in preview.emails %}
+                        <li>{{ email }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted mb-0">No recipients matched this audience.</p>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h2>Tips</h2>
+        </div>
+        <ul class="mb-0 small text-muted">
+            <li>Per-event audiences (RSVPs, speakers, volunteers) require selecting an event.</li>
+            <li>"All community members" ignores opt-out preferences — use sparingly. Prefer the "opted in" audience for newsletters.</li>
+            <li>Use the preview to verify the recipient list before sending.</li>
+        </ul>
+    </div>
+{% endblock %}

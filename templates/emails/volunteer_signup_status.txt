@@ -1,0 +1,15 @@
+Hi {{ signup.name }},
+
+There is an update on your volunteer application for {{ event.name }}.
+
+Skills / Role: {{ signup.skills_or_role }}
+Status: {{ status_label }}
+
+{% if signup.status == 'approved' %}You're in — thank you for offering your time! We will follow up with the volunteer briefing details shortly.
+{% elif signup.status == 'rejected' %}Thank you for applying. We have a full roster for this event, but we'd love to have you involved in a future event.
+{% elif signup.status == 'hold' %}Your application is currently on hold — we may reach out closer to the event if a spot opens up.
+{% else %}Your application status is now: {{ status_label }}.
+{% endif %}
+Event page: {{ event_url }}
+
+— {{ site_name }}

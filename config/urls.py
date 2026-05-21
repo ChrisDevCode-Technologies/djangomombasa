@@ -8,6 +8,7 @@ urlpatterns = [
     path('', include('events_and_activities.urls')),
     path('', include('blog_and_news.urls')),
     path('membership/', include('membership.urls')),
+    path('admin/', include('app.admin_urls')),
     path('dashboard/', admin.site.urls),
     path('summernote/', include('django_summernote.urls')),
 ]

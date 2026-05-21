@@ -47,6 +47,9 @@ AUTHENTICATION_BACKENDS = [
     'accounts.backends.EmailBackend',
 ]
 
+# Custom admin login URL — used by @login_required to redirect anonymous users
+LOGIN_URL = 'custom_admin:admin_login'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -144,11 +147,23 @@ SUMMERNOTE_CONFIG = {
     },
 }
 
-# Email — Gmail SMTP
+# Email — Resend SMTP
+# Resend requires the username 'resend' and an API key as the password.
+# https://resend.com/docs/send-with-smtp
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'djangomombasake@gmail.com'
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
-DEFAULT_FROM_EMAIL = 'Django Mombasa <djangomombasake@gmail.com>'
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.resend.com')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'true').lower() == 'true'
+EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'false').lower() == 'true'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'resend')
+EMAIL_HOST_PASSWORD = os.environ.get('RESEND_API_KEY', os.environ.get('EMAIL_HOST_PASSWORD', ''))
+EMAIL_TIMEOUT = int(os.environ.get('EMAIL_TIMEOUT', '15'))
+DEFAULT_FROM_EMAIL = os.environ.get(
+    'DEFAULT_FROM_EMAIL',
+    'Django Mombasa <info@djangomombasa.org>',
+)
+SERVER_EMAIL = os.environ.get('SERVER_EMAIL', DEFAULT_FROM_EMAIL)
+
+# Used in email templates for absolute URLs.
+SITE_URL = os.environ.get('SITE_URL', 'https://djangomombasa.org')
+SITE_NAME = 'Django Mombasa'
