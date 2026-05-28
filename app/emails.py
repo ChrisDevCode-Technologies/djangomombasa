@@ -9,6 +9,8 @@ user's web request (and the operator can re-send from the admin if needed).
 
 from __future__ import annotations
 
+import base64
+import io
 import logging
 from typing import Iterable, Sequence
 
@@ -88,6 +90,32 @@ def _send(
         return False
 
 
+def _generate_qr_png(payload: str) -> bytes | None:
+    """Render `payload` as a PNG QR code. Returns None on failure (e.g. lib missing)."""
+    try:
+        import qrcode
+        from qrcode.image.pil import PilImage
+    except Exception:
+        logger.exception('qrcode library not available')
+        return None
+    try:
+        img = qrcode.make(payload, image_factory=PilImage, box_size=8, border=2)
+        buf = io.BytesIO()
+        img.save(buf, format='PNG')
+        return buf.getvalue()
+    except Exception:
+        logger.exception('Failed to render QR code for payload')
+        return None
+
+
+def _qr_data_uri(payload: str) -> str | None:
+    """Return a `data:image/png;base64,…` URI for inline embedding (template-side fallback)."""
+    data = _generate_qr_png(payload)
+    if not data:
+        return None
+    return f'data:image/png;base64,{base64.b64encode(data).decode("ascii")}'
+
+
 # --- Speaker proposal --------------------------------------------------------
 
 def send_speaker_proposal_received(proposal) -> bool:
@@ -152,7 +180,14 @@ def send_volunteer_signup_status_changed(signup, previous_status: str | None = N
 
 # --- RSVP confirmation -------------------------------------------------------
 
+def _rsvp_check_in_url(rsvp) -> str:
+    base = reverse('custom_admin:event_check_in', args=[rsvp.event.slug])
+    return _absolute(f'{base}?token={rsvp.check_in_token}')
+
+
 def send_rsvp_confirmation(rsvp) -> bool:
+    check_in_url = _rsvp_check_in_url(rsvp)
+    qr_data_uri = _qr_data_uri(check_in_url)
     return _send(
         subject=f'You\'re in: {rsvp.event.name}',
         template_base='emails/rsvp_confirmation',
@@ -161,6 +196,32 @@ def send_rsvp_confirmation(rsvp) -> bool:
             'event': rsvp.event,
             'member': rsvp.member,
             'event_url': _event_url(rsvp.event),
+            'check_in_url': check_in_url,
+            'qr_data_uri': qr_data_uri,
+            'has_qr': qr_data_uri is not None,
+        },
+        recipients=[rsvp.member.email],
+    )
+
+
+# --- RSVP check-in status ----------------------------------------------------
+
+def send_rsvp_check_in_status_changed(rsvp, previous_status: str | None = None) -> bool:
+    status_label = rsvp.get_check_in_status_display()
+    if rsvp.check_in_status == 'accepted':
+        subject = f"You're checked in: {rsvp.event.name}"
+    else:
+        subject = f'Update on your check-in for {rsvp.event.name}'
+    return _send(
+        subject=subject,
+        template_base='emails/rsvp_check_in_status',
+        context={
+            'rsvp': rsvp,
+            'event': rsvp.event,
+            'member': rsvp.member,
+            'event_url': _event_url(rsvp.event),
+            'previous_status': previous_status,
+            'status_label': status_label,
         },
         recipients=[rsvp.member.email],
     )

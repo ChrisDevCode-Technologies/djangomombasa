@@ -1,7 +1,7 @@
 from django import forms
 from django_summernote.widgets import SummernoteWidget
 
-from events_and_activities.models import Event
+from events_and_activities.models import Event, ScheduleSlot, SpeakerProposal
 from membership.models import Member
 
 
@@ -26,6 +26,8 @@ class EventForm(forms.ModelForm):
             'rsvp_link',
             'details',
             'has_rsvp',
+            'rsvp_capacity',
+            'rsvp_deadline',
             'has_cfp',
             'has_cfv',
         ]
@@ -39,6 +41,11 @@ class EventForm(forms.ModelForm):
             'rsvp_link': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://...'}),
             'details': SummernoteWidget(),
             'has_rsvp': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'rsvp_capacity': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'placeholder': 'Leave blank for unlimited'}),
+            'rsvp_deadline': forms.DateTimeInput(
+                attrs={'class': 'form-control', 'type': 'datetime-local'},
+                format='%Y-%m-%dT%H:%M',
+            ),
             'has_cfp': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'has_cfv': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
@@ -46,6 +53,60 @@ class EventForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['date'].input_formats = ['%Y-%m-%dT%H:%M']
+        self.fields['rsvp_deadline'].input_formats = ['%Y-%m-%dT%H:%M']
+
+
+class ScheduleSlotForm(forms.ModelForm):
+    class Meta:
+        model = ScheduleSlot
+        fields = [
+            'title',
+            'summary',
+            'order',
+            'start_time',
+            'end_time',
+            'speaker_proposal',
+            'manual_speaker_name',
+            'manual_speaker_bio',
+        ]
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'summary': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'order': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
+            'start_time': forms.DateTimeInput(
+                attrs={'class': 'form-control', 'type': 'datetime-local'},
+                format='%Y-%m-%dT%H:%M',
+            ),
+            'end_time': forms.DateTimeInput(
+                attrs={'class': 'form-control', 'type': 'datetime-local'},
+                format='%Y-%m-%dT%H:%M',
+            ),
+            'speaker_proposal': forms.Select(attrs={'class': 'form-select'}),
+            'manual_speaker_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'manual_speaker_bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+
+    def __init__(self, *args, event=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.event = event or (self.instance.event if self.instance and self.instance.pk else None)
+        self.fields['start_time'].input_formats = ['%Y-%m-%dT%H:%M']
+        self.fields['end_time'].input_formats = ['%Y-%m-%dT%H:%M']
+        if self.event is not None:
+            self.fields['speaker_proposal'].queryset = SpeakerProposal.objects.filter(
+                event=self.event,
+                status=SpeakerProposal.Status.APPROVED,
+            )
+        else:
+            self.fields['speaker_proposal'].queryset = SpeakerProposal.objects.filter(
+                status=SpeakerProposal.Status.APPROVED,
+            )
+        self.fields['speaker_proposal'].empty_label = '— No linked speaker —'
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get('speaker_proposal') and cleaned.get('manual_speaker_name'):
+            raise forms.ValidationError('Pick a speaker proposal OR fill the manual speaker name, not both.')
+        return cleaned
 
 
 class MemberAdminForm(forms.ModelForm):

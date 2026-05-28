@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -33,6 +34,16 @@ def rsvp(request, slug):
     member_form = RSVPForm()
     guest_form = RSVPGuestForm()
     active_tab = 'member'
+
+    if not event.rsvp_is_open:
+        # Closed (deadline passed or capacity reached) — render the page in closed state.
+        return render(request, 'events_and_activities/rsvp.html', {
+            'event': event,
+            'member_form': member_form,
+            'guest_form': guest_form,
+            'active_tab': active_tab,
+        })
+
     if request.method == 'POST':
         mode = request.POST.get('mode', 'member')
         if mode == 'guest':
@@ -43,9 +54,10 @@ def rsvp(request, slug):
                 if RSVP.objects.filter(event=event, member=guest).exists():
                     guest_form.add_error('email', 'This email has already RSVPed to this event.')
                 else:
-                    rsvp_obj = RSVP.objects.create(event=event, member=guest)
-                    notifications.send_rsvp_confirmation(rsvp_obj)
-                    return redirect('events_and_activities:event_rsvp_success', slug=event.slug, rsvp_id=rsvp_obj.pk)
+                    rsvp_obj = _create_rsvp_or_capacity_error(event, guest, guest_form, 'email')
+                    if rsvp_obj is not None:
+                        notifications.send_rsvp_confirmation(rsvp_obj)
+                        return redirect('events_and_activities:event_rsvp_success', slug=event.slug, rsvp_id=rsvp_obj.pk)
         else:
             member_form = RSVPForm(request.POST)
             if member_form.is_valid():
@@ -53,15 +65,27 @@ def rsvp(request, slug):
                 if RSVP.objects.filter(event=event, member=member).exists():
                     member_form.add_error('member_identifier', f'{member.member_id} has already RSVPed to this event.')
                 else:
-                    rsvp_obj = RSVP.objects.create(event=event, member=member)
-                    notifications.send_rsvp_confirmation(rsvp_obj)
-                    return redirect('events_and_activities:event_rsvp_success', slug=event.slug, rsvp_id=rsvp_obj.pk)
+                    rsvp_obj = _create_rsvp_or_capacity_error(event, member, member_form, 'member_identifier')
+                    if rsvp_obj is not None:
+                        notifications.send_rsvp_confirmation(rsvp_obj)
+                        return redirect('events_and_activities:event_rsvp_success', slug=event.slug, rsvp_id=rsvp_obj.pk)
     return render(request, 'events_and_activities/rsvp.html', {
         'event': event,
         'member_form': member_form,
         'guest_form': guest_form,
         'active_tab': active_tab,
     })
+
+
+def _create_rsvp_or_capacity_error(event, member, form, field_name):
+    """Re-check capacity inside a transaction that holds a row lock on the event,
+    so concurrent RSVPs racing for the last seat serialize at the DB level."""
+    with transaction.atomic():
+        locked_event = Event.objects.select_for_update().get(pk=event.pk)
+        if locked_event.rsvp_is_full:
+            form.add_error(field_name, 'Sorry — this event just reached capacity. RSVPs are now closed.')
+            return None
+        return RSVP.objects.create(event=locked_event, member=member)
 
 
 def rsvp_success(request, slug, rsvp_id):

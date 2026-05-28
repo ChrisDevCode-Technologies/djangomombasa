@@ -331,6 +331,18 @@ body.admin-body {
     border-color: #C7D2FE;
 }
 
+.status-badge.status-accepted {
+    background: #D1FAE5;
+    color: #065F46;
+    border-color: #A7F3D0;
+}
+
+.status-badge.status-denied {
+    background: #FEE2E2;
+    color: #991B1B;
+    border-color: #FECACA;
+}
+
 .status-actions {
     display: inline-flex;
     gap: 0.3rem;

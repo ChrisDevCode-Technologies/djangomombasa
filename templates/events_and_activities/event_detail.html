@@ -9,6 +9,40 @@
         background-color: var(--dm-primary);
         padding-top: 72px;
     }
+    .rsvp-meta {
+        font-size: 0.9rem;
+        color: var(--dm-muted-text);
+    }
+    .rsvp-closed {
+        display: inline-block;
+        padding: 0.75rem 1.25rem;
+        border-radius: 0.5rem;
+        background: var(--dm-bg-light);
+        border: 1px solid var(--dm-border);
+        color: var(--dm-muted-text);
+        font-weight: 500;
+    }
+    .schedule-slot {
+        border: 1px solid var(--dm-border);
+        border-radius: 0.5rem;
+        padding: 1rem 1.25rem;
+        background: #ffffff;
+    }
+    .schedule-slot + .schedule-slot {
+        margin-top: 0.75rem;
+    }
+    .schedule-time {
+        font-size: 0.85rem;
+        color: var(--dm-muted-text);
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+    }
+    .schedule-speaker {
+        font-size: 0.9rem;
+        color: var(--dm-secondary);
+        margin-top: 0.5rem;
+    }
 </style>
 {% endblock %}
 
@@ -34,9 +68,21 @@
             <div class="col-lg-8">
                 <p class="lead mb-4" style="white-space: pre-line;">{{ event.details }}</p>
 
-                <div class="d-flex flex-wrap gap-2 mb-3">
+                <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
                     {% if event.has_rsvp %}
-                        <a href="{% url 'events_and_activities:event_rsvp' event.slug %}" class="btn btn-primary btn-lg px-4">RSVP for This Event</a>
+                        {% if event.rsvp_is_open %}
+                            <a href="{% url 'events_and_activities:event_rsvp' event.slug %}" class="btn btn-primary btn-lg px-4">RSVP for This Event</a>
+                        {% else %}
+                            <span class="rsvp-closed">
+                                {% if event.rsvp_closed_reason == 'full' %}
+                                    <i class="bi bi-people-fill me-1"></i> RSVPs closed — event is full
+                                {% elif event.rsvp_closed_reason == 'past_deadline' %}
+                                    <i class="bi bi-clock-history me-1"></i> RSVPs closed {{ event.rsvp_deadline|date:"D, j M · H:i" }}
+                                {% else %}
+                                    <i class="bi bi-lock me-1"></i> RSVPs closed
+                                {% endif %}
+                            </span>
+                        {% endif %}
                     {% elif event.rsvp_link %}
                         <a href="{{ event.rsvp_link }}" class="btn btn-primary btn-lg px-4" target="_blank" rel="noopener">RSVP for This Event</a>
                     {% endif %}
@@ -49,6 +95,47 @@
                         <a href="{% url 'events_and_activities:event_cfv' event.slug %}" class="btn btn-outline-primary btn-lg px-4">Call for Volunteers</a>
                     {% endif %}
                 </div>
+
+                {% if event.has_rsvp and event.rsvp_is_open %}
+                    <p class="rsvp-meta mb-0">
+                        {% if event.rsvp_capacity %}
+                            <i class="bi bi-people me-1"></i> {{ event.rsvp_count }} of {{ event.rsvp_capacity }} spots filled.
+                        {% else %}
+                            <i class="bi bi-people me-1"></i> {{ event.rsvp_count }} RSVP{{ event.rsvp_count|pluralize }} so far.
+                        {% endif %}
+                        {% if event.rsvp_deadline %}
+                            · RSVPs close {{ event.rsvp_deadline|date:"D, j M · H:i" }}.
+                        {% endif %}
+                    </p>
+                {% endif %}
+
+                {% if event.schedule_slots.all %}
+                    <hr class="my-4">
+                    <h2 class="h4 mb-3">Schedule</h2>
+                    <div>
+                        {% for slot in event.schedule_slots.all %}
+                            <div class="schedule-slot">
+                                {% if slot.start_time %}
+                                    <div class="schedule-time">
+                                        {{ slot.start_time|date:"H:i" }}{% if slot.end_time %} – {{ slot.end_time|date:"H:i" }}{% endif %}
+                                    </div>
+                                {% endif %}
+                                <h3 class="h5 mb-1 mt-1">{{ slot.title }}</h3>
+                                {% if slot.summary %}
+                                    <p class="mb-1" style="white-space: pre-line;">{{ slot.summary }}</p>
+                                {% endif %}
+                                {% if slot.speaker_display_name %}
+                                    <div class="schedule-speaker">
+                                        <i class="bi bi-mic me-1"></i> <strong>Speaker:</strong> {{ slot.speaker_display_name }}
+                                        {% if slot.speaker_display_bio %}
+                                            <div class="text-muted small mt-1" style="white-space: pre-line;">{{ slot.speaker_display_bio }}</div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
 
                 <hr class="my-4">
                 <a href="{% url 'events_and_activities:events' %}" class="text-decoration-none"><i class="bi bi-arrow-left me-1"></i> Back to Events</a>

@@ -6,6 +6,7 @@ from membership.models import Member
 from events_and_activities.models import (
     Event,
     RSVP,
+    ScheduleSlot,
     SpeakerProposal,
     Tag,
     VolunteerSignup,
@@ -116,6 +117,8 @@ class Command(BaseCommand):
                 'has_rsvp': True,
                 'has_cfp': True,
                 'has_cfv': True,
+                'rsvp_capacity': 5,
+                'rsvp_deadline': now + timezone.timedelta(days=12),
                 'tags': ['Backend', 'Hands-on'],
             },
             {
@@ -235,4 +238,46 @@ class Command(BaseCommand):
             sign_created += int(was_created)
         self.stdout.write(self.style.SUCCESS(
             f'Volunteer signups for "{workshop.name}": {len(signups)} total ({sign_created} new).'
+        ))
+
+        approved_proposal = SpeakerProposal.objects.filter(
+            event=workshop, status=SpeakerProposal.Status.APPROVED,
+        ).first()
+
+        schedule_specs = [
+            {
+                'order': 1,
+                'title': 'Doors open + registration',
+                'summary': 'Pick up your name tag and grab a coffee.',
+                'speaker_proposal': None,
+                'manual_speaker_name': '',
+                'manual_speaker_bio': '',
+            },
+            {
+                'order': 2,
+                'title': 'Background tasks without Celery',
+                'summary': 'Talk from an approved speaker proposal.',
+                'speaker_proposal': approved_proposal,
+                'manual_speaker_name': '',
+                'manual_speaker_bio': '',
+            },
+            {
+                'order': 3,
+                'title': 'Guest keynote: Scaling Django on Africa-region infra',
+                'summary': 'A guest speaker invited directly by the organizing team.',
+                'speaker_proposal': None,
+                'manual_speaker_name': 'Hawi Mbeti',
+                'manual_speaker_bio': 'Cloud platform lead, organising committee Nairobi.',
+            },
+        ]
+        slot_created = 0
+        for spec in schedule_specs:
+            _, was_created = ScheduleSlot.objects.get_or_create(
+                event=workshop,
+                title=spec['title'],
+                defaults=spec,
+            )
+            slot_created += int(was_created)
+        self.stdout.write(self.style.SUCCESS(
+            f'Schedule slots for "{workshop.name}": {len(schedule_specs)} total ({slot_created} new).'
         ))

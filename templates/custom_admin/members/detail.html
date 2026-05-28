@@ -15,7 +15,18 @@
         </div>
     </div>
 
-    <div class="admin-card">
+    <div class="stat-grid">
+        <div class="stat-tile">
+            <div class="stat-label">Events attended</div>
+            <div class="stat-value">{{ attended_count }}</div>
+        </div>
+        <div class="stat-tile">
+            <div class="stat-label">Total RSVPs</div>
+            <div class="stat-value">{{ rsvp_count }}</div>
+        </div>
+    </div>
+
+    <div class="admin-card mb-4">
         <div class="admin-card-header">
             <h2>{{ member.member_id }}</h2>
             <span class="text-muted small">Joined {{ member.joined_at|date:"d M Y" }}</span>
@@ -53,4 +64,35 @@
             <dd class="col-sm-8">{{ member.receive_email_communications|yesno:"Yes,No" }}</dd>
         </dl>
     </div>
+
+    {% if rsvps %}
+        <div class="admin-card mb-4">
+            <div class="admin-card-header">
+                <h2>Event history</h2>
+                <span class="text-muted small">{{ attended_count }} attended · {{ rsvp_count }} RSVPs</span>
+            </div>
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Date</th>
+                            <th>RSVP'd</th>
+                            <th>Check-in</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rsvp in rsvps %}
+                            <tr>
+                                <td><a href="{% url 'custom_admin:event_detail' slug=rsvp.event.slug %}">{{ rsvp.event.name }}</a></td>
+                                <td>{{ rsvp.event.date|date:"d M Y" }}</td>
+                                <td>{{ rsvp.created_at|date:"d M Y" }}</td>
+                                <td><span class="status-badge status-{{ rsvp.check_in_status }}">{{ rsvp.get_check_in_status_display }}</span></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}

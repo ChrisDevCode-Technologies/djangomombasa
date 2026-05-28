@@ -1,0 +1,209 @@
+{% extends "layout/admin/base.html" %}
+
+{% block page_title %}Check-in · {{ event.name }}{% endblock %}
+{% block page_heading %}Check-in · {{ event.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .check-in-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    .check-in-toolbar form { display: flex; gap: 0.5rem; align-items: center; flex-grow: 1; max-width: 480px; }
+    .check-in-toolbar input[type="text"] { flex-grow: 1; }
+    #qr-reader { width: 320px; max-width: 100%; margin-top: 0.75rem; }
+    tr.highlighted-row {
+        outline: 3px solid #1F6B4C;
+        outline-offset: -3px;
+        background: #ECF5EF !important;
+    }
+</style>
+{% endblock %}
+
+{% block admin_content %}
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <a href="{% url 'custom_admin:event_detail' slug=event.slug %}" class="btn btn-sm btn-dm-outline">
+            <i class="bi bi-arrow-left"></i> Back to event
+        </a>
+        <div class="text-muted small">{{ accepted_count }} accepted · {{ rsvp_count }} total RSVPs</div>
+    </div>
+
+    <div class="admin-card mb-4">
+        <div class="admin-card-header">
+            <h2>Find an attendee</h2>
+        </div>
+
+        <div class="check-in-toolbar">
+            <form method="get" role="search">
+                <input
+                    type="text"
+                    name="q"
+                    value="{{ q }}"
+                    class="form-control"
+                    placeholder="Search by name, email, or Member ID"
+                    autocomplete="off"
+                    autofocus
+                >
+                <button type="submit" class="btn btn-dm-primary">
+                    <i class="bi bi-search"></i> Search
+                </button>
+                {% if q or token %}
+                    <a href="{% url 'custom_admin:event_check_in' slug=event.slug %}" class="btn btn-dm-outline">Clear</a>
+                {% endif %}
+            </form>
+            <button type="button" id="scan-qr-btn" class="btn btn-dm-outline">
+                <i class="bi bi-qr-code-scan"></i> Scan QR
+            </button>
+        </div>
+
+        <div id="qr-reader-wrapper" hidden>
+            <div id="qr-reader"></div>
+            <div class="text-muted small mt-1">Point your camera at the attendee's confirmation QR code.</div>
+        </div>
+    </div>
+
+    <div class="admin-card mb-4">
+        <div class="admin-card-header">
+            <h2>RSVPs{% if q %} matching "{{ q }}"{% endif %}</h2>
+            <span class="text-muted small">{{ rsvps|length }} shown</span>
+        </div>
+
+        {% if rsvps %}
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Member ID</th>
+                        <th>Status</th>
+                        <th>Checked in</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rsvp in rsvps %}
+                        <tr id="rsvp-{{ rsvp.pk }}" {% if rsvp.pk == highlighted_pk %}class="highlighted-row"{% endif %}>
+                            <td>{{ rsvp.member.name }}</td>
+                            <td>{{ rsvp.member.email }}</td>
+                            <td>{{ rsvp.member.member_id }}</td>
+                            <td><span class="status-badge status-{{ rsvp.check_in_status }}">{{ rsvp.get_check_in_status_display }}</span></td>
+                            <td>
+                                {% if rsvp.checked_in_at %}
+                                    {{ rsvp.checked_in_at|date:"d M · H:i" }}
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="status-actions">
+                                    {% if rsvp.check_in_status != 'accepted' %}
+                                        <form method="post" action="{% url 'custom_admin:rsvp_check_in_status' pk=rsvp.pk %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="status" value="accepted">
+                                            <button type="submit" class="btn btn-approve" title="Accept"><i class="bi bi-check-lg"></i> Accept</button>
+                                        </form>
+                                    {% endif %}
+                                    {% if rsvp.check_in_status != 'hold' %}
+                                        <form method="post" action="{% url 'custom_admin:rsvp_check_in_status' pk=rsvp.pk %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="status" value="hold">
+                                            <button type="submit" class="btn btn-hold" title="Hold"><i class="bi bi-pause-fill"></i> Hold</button>
+                                        </form>
+                                    {% endif %}
+                                    {% if rsvp.check_in_status != 'denied' %}
+                                        <form method="post" action="{% url 'custom_admin:rsvp_check_in_status' pk=rsvp.pk %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="status" value="denied">
+                                            <button type="submit" class="btn btn-reject" title="Deny"><i class="bi bi-x-lg"></i> Deny</button>
+                                        </form>
+                                    {% endif %}
+                                    {% if rsvp.check_in_status != 'pending' %}
+                                        <form method="post" action="{% url 'custom_admin:rsvp_check_in_status' pk=rsvp.pk %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="status" value="pending">
+                                            <button type="submit" class="btn btn-pending" title="Reset to Pending"><i class="bi bi-arrow-counterclockwise"></i></button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            <p class="text-muted mb-0">No RSVPs{% if q %} match "{{ q }}"{% endif %}.</p>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/html5-qrcode" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const btn = document.getElementById('scan-qr-btn');
+    const wrapper = document.getElementById('qr-reader-wrapper');
+    let scanner = null;
+
+    function extractToken(decoded) {
+        try {
+            const url = new URL(decoded, window.location.origin);
+            const token = url.searchParams.get('token');
+            return token || null;
+        } catch (e) {
+            // Not a URL — accept raw UUID payloads too
+            const trimmed = (decoded || '').trim();
+            if (/^[0-9a-fA-F-]{32,36}$/.test(trimmed)) {
+                return trimmed;
+            }
+            return null;
+        }
+    }
+
+    btn.addEventListener('click', function () {
+        if (typeof Html5Qrcode === 'undefined') {
+            alert('QR scanner library still loading — try again in a moment.');
+            return;
+        }
+        if (scanner && scanner.isScanning) {
+            scanner.stop().then(() => {
+                scanner.clear();
+                wrapper.hidden = true;
+            });
+            return;
+        }
+        wrapper.hidden = false;
+        scanner = new Html5Qrcode('qr-reader');
+        scanner.start(
+            { facingMode: 'environment' },
+            { fps: 10, qrbox: 240 },
+            function onSuccess(decoded) {
+                const token = extractToken(decoded);
+                if (token) {
+                    scanner.stop().then(() => {
+                        window.location.assign('?token=' + encodeURIComponent(token));
+                    });
+                } else {
+                    console.warn('QR did not contain a token:', decoded);
+                }
+            },
+            function onError() { /* per-frame decode errors are noisy — ignore */ }
+        ).catch(function (err) {
+            alert('Could not start camera: ' + err);
+            wrapper.hidden = true;
+        });
+    });
+
+    {% if highlighted_pk %}
+    const row = document.getElementById('rsvp-{{ highlighted_pk }}');
+    if (row) {
+        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    {% endif %}
+});
+</script>
+{% endblock %}
