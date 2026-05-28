@@ -18,5 +18,10 @@ urlpatterns = [
     path('members/<str:member_id>/edit/', admin_views.member_edit, name='member_edit'),
     path('proposals/<int:pk>/status/', admin_views.speaker_proposal_status, name='speaker_proposal_status'),
     path('volunteers/<int:pk>/status/', admin_views.volunteer_signup_status, name='volunteer_signup_status'),
+    path('events/<slug:slug>/check-in/', admin_views.event_check_in, name='event_check_in'),
+    path('rsvps/<int:pk>/check-in-status/', admin_views.rsvp_check_in_status, name='rsvp_check_in_status'),
+    path('events/<slug:slug>/schedule/new/', admin_views.schedule_slot_create, name='schedule_slot_create'),
+    path('schedule/<int:pk>/edit/', admin_views.schedule_slot_edit, name='schedule_slot_edit'),
+    path('schedule/<int:pk>/delete/', admin_views.schedule_slot_delete, name='schedule_slot_delete'),
     path('messaging/', admin_views.broadcast, name='broadcast'),
 ]

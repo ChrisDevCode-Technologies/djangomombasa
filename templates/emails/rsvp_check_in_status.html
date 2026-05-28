@@ -1,0 +1,18 @@
+{% extends "emails/base.html" %}
+{% block subject %}{% if rsvp.check_in_status == 'accepted' %}You're checked in: {{ event.name }}{% else %}Update on your check-in for {{ event.name }}{% endif %}{% endblock %}
+{% block body %}
+<p>Hi {{ member.name }},</p>
+<p>There is an update on your check-in for <strong>{{ event.name }}</strong>.</p>
+<p><strong>Status:</strong> <span style="display:inline-block;background:#0D3F2E;color:#ffffff;padding:2px 10px;border-radius:999px;font-size:13px;">{{ status_label }}</span></p>
+{% if rsvp.check_in_status == 'accepted' %}
+    <p>You're checked in — welcome! Enjoy the event.</p>
+{% elif rsvp.check_in_status == 'hold' %}
+    <p>Your check-in is on hold while the organizers look into something. Please find a member of the team at the venue.</p>
+{% elif rsvp.check_in_status == 'denied' %}
+    <p>Unfortunately we are unable to admit you to this event. If you believe this is a mistake, please reply to this email and an organizer will follow up.</p>
+{% else %}
+    <p>Your check-in status is now: <strong>{{ status_label }}</strong>.</p>
+{% endif %}
+<p><a href="{{ event_url }}" style="display:inline-block;background:#0D3F2E;color:#ffffff;padding:10px 18px;border-radius:6px;text-decoration:none;">View event page</a></p>
+<p style="color:#6B7280;font-size:13px;">— {{ site_name }}</p>
+{% endblock %}

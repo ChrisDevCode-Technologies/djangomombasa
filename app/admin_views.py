@@ -4,17 +4,17 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import AuthenticationForm
-from django.db.models import Q
+from django.db.models import Count, Max, Q
 from django.http import HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 
-from events_and_activities.models import Event, SpeakerProposal, VolunteerSignup
+from events_and_activities.models import Event, RSVP, ScheduleSlot, SpeakerProposal, VolunteerSignup
 from membership.models import Member
 
 from . import emails as notifications
-from .forms import BroadcastForm, EventForm, MemberAdminForm
+from .forms import BroadcastForm, EventForm, MemberAdminForm, ScheduleSlotForm
 
 
 def staff_required(view):
@@ -78,7 +78,13 @@ def event_list(request):
 @staff_required
 def event_detail(request, slug):
     event = get_object_or_404(
-        Event.objects.prefetch_related('tags', 'rsvps__member', 'speaker_proposals', 'volunteer_signups'),
+        Event.objects.prefetch_related(
+            'tags',
+            'rsvps__member',
+            'speaker_proposals',
+            'volunteer_signups',
+            'schedule_slots__speaker_proposal',
+        ),
         slug=slug,
     )
     return render(request, 'custom_admin/events/detail.html', {
@@ -86,6 +92,7 @@ def event_detail(request, slug):
         'rsvp_count': event.rsvps.count(),
         'speaker_proposal_count': event.speaker_proposals.count(),
         'volunteer_signup_count': event.volunteer_signups.count(),
+        'schedule_slot_count': event.schedule_slots.count(),
     })
 
 
@@ -128,7 +135,14 @@ def event_edit(request, slug):
 @staff_required
 def member_list(request):
     q = request.GET.get('q', '').strip()
-    members = Member.objects.all().order_by('-joined_at')
+    members = Member.objects.annotate(
+        rsvp_count=Count('event_rsvps', distinct=True),
+        attended_count=Count(
+            'event_rsvps',
+            filter=Q(event_rsvps__check_in_status=RSVP.CheckInStatus.ACCEPTED),
+            distinct=True,
+        ),
+    ).order_by('-joined_at')
     if q:
         members = members.filter(
             Q(name__icontains=q)
@@ -144,7 +158,15 @@ def member_list(request):
 @staff_required
 def member_detail(request, member_id):
     member = get_object_or_404(Member, member_id=member_id)
-    return render(request, 'custom_admin/members/detail.html', {'member': member})
+    rsvps = member.event_rsvps.select_related('event').order_by('-event__date')
+    attended = rsvps.filter(check_in_status=RSVP.CheckInStatus.ACCEPTED)
+    return render(request, 'custom_admin/members/detail.html', {
+        'member': member,
+        'rsvps': rsvps,
+        'attended_rsvps': attended,
+        'rsvp_count': rsvps.count(),
+        'attended_count': attended.count(),
+    })
 
 
 @staff_required
@@ -298,3 +320,142 @@ def volunteer_signup_status(request, pk):
         label='Volunteer signup',
         notify=notifications.send_volunteer_signup_status_changed,
     )
+
+
+# --- RSVP check-in -----------------------------------------------------------
+
+@staff_required
+def event_check_in(request, slug):
+    event = get_object_or_404(Event, slug=slug)
+    q = request.GET.get('q', '').strip()
+    token = request.GET.get('token', '').strip()
+
+    rsvps = event.rsvps.select_related('member').order_by('member__name')
+    highlighted_pk = None
+
+    if token:
+        match = rsvps.filter(check_in_token=token).first() if _looks_like_uuid(token) else None
+        if match:
+            highlighted_pk = match.pk
+        else:
+            messages.warning(request, 'No RSVP matched that QR code for this event.')
+
+    if q:
+        rsvps = rsvps.filter(
+            Q(member__email__icontains=q)
+            | Q(member__name__icontains=q)
+            | Q(member__member_id__icontains=q)
+        )
+
+    return render(request, 'custom_admin/events/check_in.html', {
+        'event': event,
+        'rsvps': rsvps,
+        'q': q,
+        'token': token,
+        'highlighted_pk': highlighted_pk,
+        'rsvp_count': event.rsvps.count(),
+        'accepted_count': event.rsvps.filter(check_in_status=RSVP.CheckInStatus.ACCEPTED).count(),
+        'status_choices': RSVP.CheckInStatus.choices,
+    })
+
+
+def _looks_like_uuid(value: str) -> bool:
+    try:
+        import uuid as _uuid
+        _uuid.UUID(value)
+        return True
+    except (ValueError, AttributeError):
+        return False
+
+
+@staff_required
+def rsvp_check_in_status(request, pk):
+    rsvp = get_object_or_404(RSVP.objects.select_related('event', 'member'), pk=pk)
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+
+    new_status = request.POST.get('status', '').strip()
+    allowed = {s.value for s in RSVP.CheckInStatus}
+    if new_status not in allowed:
+        messages.error(request, f'Invalid status "{new_status}".')
+        return redirect('custom_admin:event_check_in', slug=rsvp.event.slug)
+
+    previous_status = rsvp.check_in_status
+    if previous_status == new_status:
+        messages.info(request, f'{rsvp.member.name} is already {rsvp.get_check_in_status_display()}.')
+        return redirect('custom_admin:event_check_in', slug=rsvp.event.slug)
+
+    rsvp.check_in_status = new_status
+    update_fields = ['check_in_status']
+    if new_status == RSVP.CheckInStatus.ACCEPTED and rsvp.checked_in_at is None:
+        rsvp.checked_in_at = timezone.now()
+        update_fields.append('checked_in_at')
+    rsvp.save(update_fields=update_fields)
+
+    sent = bool(notifications.send_rsvp_check_in_status_changed(rsvp, previous_status))
+    if sent:
+        messages.success(
+            request,
+            f'{rsvp.member.name} marked {rsvp.get_check_in_status_display()} — email sent to {rsvp.member.email}.',
+        )
+    else:
+        messages.success(request, f'{rsvp.member.name} marked {rsvp.get_check_in_status_display()}.')
+        messages.warning(request, f'Status email to {rsvp.member.email} failed to send — check the mail server logs.')
+
+    return redirect(f'{reverse("custom_admin:event_check_in", args=[rsvp.event.slug])}?token={rsvp.check_in_token}')
+
+
+# --- Schedule slots ----------------------------------------------------------
+
+@staff_required
+def schedule_slot_create(request, slug):
+    event = get_object_or_404(Event, slug=slug)
+    if request.method == 'POST':
+        form = ScheduleSlotForm(request.POST, event=event)
+        if form.is_valid():
+            slot = form.save(commit=False)
+            slot.event = event
+            slot.save()
+            messages.success(request, f'Schedule slot "{slot.title}" added.')
+            return redirect('custom_admin:event_detail', slug=event.slug)
+    else:
+        next_order = (event.schedule_slots.aggregate(m=Max('order'))['m'] or 0) + 1
+        form = ScheduleSlotForm(event=event, initial={'order': next_order})
+    return render(request, 'custom_admin/events/schedule_form.html', {
+        'form': form,
+        'event': event,
+        'mode': 'create',
+        'page_title': f'Add slot · {event.name}',
+    })
+
+
+@staff_required
+def schedule_slot_edit(request, pk):
+    slot = get_object_or_404(ScheduleSlot.objects.select_related('event'), pk=pk)
+    if request.method == 'POST':
+        form = ScheduleSlotForm(request.POST, instance=slot, event=slot.event)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Schedule slot "{slot.title}" updated.')
+            return redirect('custom_admin:event_detail', slug=slot.event.slug)
+    else:
+        form = ScheduleSlotForm(instance=slot, event=slot.event)
+    return render(request, 'custom_admin/events/schedule_form.html', {
+        'form': form,
+        'event': slot.event,
+        'slot': slot,
+        'mode': 'edit',
+        'page_title': f'Edit slot · {slot.title}',
+    })
+
+
+@staff_required
+def schedule_slot_delete(request, pk):
+    slot = get_object_or_404(ScheduleSlot.objects.select_related('event'), pk=pk)
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+    event_slug = slot.event.slug
+    title = slot.title
+    slot.delete()
+    messages.success(request, f'Schedule slot "{title}" removed.')
+    return redirect('custom_admin:event_detail', slug=event_slug)

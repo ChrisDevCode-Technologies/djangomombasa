@@ -5,7 +5,10 @@ You're confirmed for {{ event.name }}.
 When: {{ event.date|date:"l, d F Y · H:i" }}
 Member ID: {{ member.member_id }}
 
-We'll send a reminder the day before the event.
+{% if has_qr %}Show this code at the door — an organizer will scan it to check you in.
+Check-in link: {{ check_in_url }}
+
+{% endif %}We'll send a reminder the day before the event.
 
 Event page: {{ event_url }}
 

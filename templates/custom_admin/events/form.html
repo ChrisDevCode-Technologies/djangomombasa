@@ -48,6 +48,22 @@
             {{ form.has_rsvp }}
             <label class="form-check-label" for="{{ form.has_rsvp.id_for_label }}">Enable internal RSVP form</label>
         </div>
+
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label for="{{ form.rsvp_capacity.id_for_label }}" class="form-label">RSVP capacity</label>
+                {{ form.rsvp_capacity }}
+                <div class="form-text">Leave blank for unlimited.</div>
+                {% if form.rsvp_capacity.errors %}<div class="text-danger small mt-1">{{ form.rsvp_capacity.errors|join:', ' }}</div>{% endif %}
+            </div>
+            <div class="col-md-8 mb-3">
+                <label for="{{ form.rsvp_deadline.id_for_label }}" class="form-label">RSVP deadline</label>
+                {{ form.rsvp_deadline }}
+                <div class="form-text">Latest moment members can RSVP. Leave blank for no cutoff.</div>
+                {% if form.rsvp_deadline.errors %}<div class="text-danger small mt-1">{{ form.rsvp_deadline.errors|join:', ' }}</div>{% endif %}
+            </div>
+        </div>
+
         <div class="mb-2 form-check">
             {{ form.has_cfp }}
             <label class="form-check-label" for="{{ form.has_cfp.id_for_label }}">Enable Call for Speakers</label>
