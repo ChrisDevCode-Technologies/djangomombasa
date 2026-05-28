@@ -19,16 +19,23 @@
 
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label for="{{ form.date.id_for_label }}" class="form-label">Date &amp; time</label>
+                <label for="{{ form.date.id_for_label }}" class="form-label">Start date &amp; time</label>
                 {{ form.date }}
                 {% if form.date.errors %}<div class="text-danger small mt-1">{{ form.date.errors|join:', ' }}</div>{% endif %}
             </div>
             <div class="col-md-6 mb-3">
-                <label for="{{ form.rsvp_link.id_for_label }}" class="form-label">External RSVP link</label>
-                {{ form.rsvp_link }}
-                <div class="form-text">Used when the internal RSVP form is disabled.</div>
-                {% if form.rsvp_link.errors %}<div class="text-danger small mt-1">{{ form.rsvp_link.errors|join:', ' }}</div>{% endif %}
+                <label for="{{ form.end_date.id_for_label }}" class="form-label">End date &amp; time</label>
+                {{ form.end_date }}
+                <div class="form-text">Leave blank for a single-day event.</div>
+                {% if form.end_date.errors %}<div class="text-danger small mt-1">{{ form.end_date.errors|join:', ' }}</div>{% endif %}
             </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.rsvp_link.id_for_label }}" class="form-label">External RSVP link</label>
+            {{ form.rsvp_link }}
+            <div class="form-text">Used when the internal RSVP form is disabled.</div>
+            {% if form.rsvp_link.errors %}<div class="text-danger small mt-1">{{ form.rsvp_link.errors|join:', ' }}</div>{% endif %}
         </div>
 
         <div class="mb-3">
@@ -48,13 +55,50 @@
             {{ form.has_rsvp }}
             <label class="form-check-label" for="{{ form.has_rsvp.id_for_label }}">Enable internal RSVP form</label>
         </div>
-        <div class="mb-2 form-check">
-            {{ form.has_cfp }}
-            <label class="form-check-label" for="{{ form.has_cfp.id_for_label }}">Enable Call for Speakers</label>
+
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label for="{{ form.rsvp_capacity.id_for_label }}" class="form-label">RSVP capacity</label>
+                {{ form.rsvp_capacity }}
+                <div class="form-text">Leave blank for unlimited.</div>
+                {% if form.rsvp_capacity.errors %}<div class="text-danger small mt-1">{{ form.rsvp_capacity.errors|join:', ' }}</div>{% endif %}
+            </div>
+            <div class="col-md-8 mb-3">
+                <label for="{{ form.rsvp_deadline.id_for_label }}" class="form-label">RSVP deadline</label>
+                {{ form.rsvp_deadline }}
+                <div class="form-text">Latest moment members can RSVP. Leave blank for no cutoff.</div>
+                {% if form.rsvp_deadline.errors %}<div class="text-danger small mt-1">{{ form.rsvp_deadline.errors|join:', ' }}</div>{% endif %}
+            </div>
         </div>
-        <div class="mb-3 form-check">
-            {{ form.has_cfv }}
-            <label class="form-check-label" for="{{ form.has_cfv.id_for_label }}">Enable Call for Volunteers</label>
+
+        <div class="row align-items-end">
+            <div class="col-md-4 mb-3">
+                <div class="form-check">
+                    {{ form.has_cfp }}
+                    <label class="form-check-label" for="{{ form.has_cfp.id_for_label }}">Enable Call for Speakers</label>
+                </div>
+            </div>
+            <div class="col-md-8 mb-3">
+                <label for="{{ form.cfp_deadline.id_for_label }}" class="form-label">Speaker application deadline</label>
+                {{ form.cfp_deadline }}
+                <div class="form-text">Latest moment speakers can submit proposals. Leave blank for no cutoff.</div>
+                {% if form.cfp_deadline.errors %}<div class="text-danger small mt-1">{{ form.cfp_deadline.errors|join:', ' }}</div>{% endif %}
+            </div>
+        </div>
+
+        <div class="row align-items-end">
+            <div class="col-md-4 mb-3">
+                <div class="form-check">
+                    {{ form.has_cfv }}
+                    <label class="form-check-label" for="{{ form.has_cfv.id_for_label }}">Enable Call for Volunteers</label>
+                </div>
+            </div>
+            <div class="col-md-8 mb-3">
+                <label for="{{ form.cfv_deadline.id_for_label }}" class="form-label">Volunteer application deadline</label>
+                {{ form.cfv_deadline }}
+                <div class="form-text">Latest moment volunteers can sign up. Leave blank for no cutoff.</div>
+                {% if form.cfv_deadline.errors %}<div class="text-danger small mt-1">{{ form.cfv_deadline.errors|join:', ' }}</div>{% endif %}
+            </div>
         </div>
 
         <div class="d-flex gap-2">

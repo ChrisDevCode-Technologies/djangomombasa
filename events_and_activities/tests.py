@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -5,7 +6,7 @@ from django.utils import timezone
 from membership.models import Member, RSVPGuest
 
 from .forms import RSVPForm, RSVPGuestForm
-from .models import Event, RSVP
+from .models import Event, RSVP, ScheduleSlot, SpeakerProposal
 
 
 def _make_member(member_id='DM-001', email='alice@example.com', name='Alice'):
@@ -268,3 +269,125 @@ class EventDetailFlagButtonsTests(TestCase):
         resp = self.client.get(reverse('events_and_activities:event_detail', args=[event.slug]))
         self.assertContains(resp, 'https://example.com/rsvp')
         self.assertNotContains(resp, reverse('events_and_activities:event_rsvp', args=[event.slug]))
+
+
+class RSVPCapacityAndDeadlineTests(TestCase):
+    def test_rsvp_is_open_when_no_limits(self):
+        event = _make_event(has_rsvp=True, name='Open No Limits')
+        self.assertTrue(event.rsvp_is_open)
+        self.assertIsNone(event.rsvp_closed_reason)
+
+    def test_rsvp_is_full_when_capacity_reached(self):
+        event = Event.objects.create(
+            name='Tiny', date=timezone.now() + timezone.timedelta(days=7),
+            details='x', has_rsvp=True, rsvp_capacity=1,
+        )
+        m = _make_member(member_id='DM-500', email='one@example.com')
+        RSVP.objects.create(event=event, member=m)
+        self.assertTrue(event.rsvp_is_full)
+        self.assertFalse(event.rsvp_is_open)
+        self.assertEqual(event.rsvp_closed_reason, 'full')
+
+    def test_rsvp_closed_when_deadline_passed(self):
+        event = Event.objects.create(
+            name='Past', date=timezone.now() + timezone.timedelta(days=7),
+            details='x', has_rsvp=True,
+            rsvp_deadline=timezone.now() - timezone.timedelta(hours=1),
+        )
+        self.assertTrue(event.rsvp_deadline_passed)
+        self.assertFalse(event.rsvp_is_open)
+        self.assertEqual(event.rsvp_closed_reason, 'past_deadline')
+
+    def test_rsvp_view_shows_closed_state_when_full(self):
+        event = Event.objects.create(
+            name='Full Event', date=timezone.now() + timezone.timedelta(days=7),
+            details='x', has_rsvp=True, rsvp_capacity=1,
+        )
+        m = _make_member(member_id='DM-510', email='occupant@example.com')
+        RSVP.objects.create(event=event, member=m)
+        resp = self.client.get(reverse('events_and_activities:event_rsvp', args=[event.slug]))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'event is full')
+        self.assertNotContains(resp, 'Confirm RSVP')
+
+    def test_rsvp_post_rejected_when_full(self):
+        event = Event.objects.create(
+            name='No Room', date=timezone.now() + timezone.timedelta(days=7),
+            details='x', has_rsvp=True, rsvp_capacity=1,
+        )
+        occupant = _make_member(member_id='DM-520', email='taken@example.com')
+        RSVP.objects.create(event=event, member=occupant)
+        latecomer = _make_member(member_id='DM-521', email='late@example.com')
+        resp = self.client.post(
+            reverse('events_and_activities:event_rsvp', args=[event.slug]),
+            {'mode': 'member', 'member_identifier': 'DM-521'},
+        )
+        self.assertEqual(resp.status_code, 200)
+        # Closed-state banner is rendered; no new RSVP was created.
+        self.assertFalse(RSVP.objects.filter(event=event, member=latecomer).exists())
+
+
+class RSVPCheckInTests(TestCase):
+    def test_token_is_unique(self):
+        event = _make_event(has_rsvp=True, name='Token Event')
+        m1 = _make_member(member_id='DM-600', email='a@example.com')
+        m2 = _make_member(member_id='DM-601', email='b@example.com')
+        r1 = RSVP.objects.create(event=event, member=m1)
+        r2 = RSVP.objects.create(event=event, member=m2)
+        self.assertIsNotNone(r1.check_in_token)
+        self.assertIsNotNone(r2.check_in_token)
+        self.assertNotEqual(r1.check_in_token, r2.check_in_token)
+
+    def test_default_check_in_status_is_pending(self):
+        event = _make_event(has_rsvp=True, name='Pending Event')
+        m = _make_member(member_id='DM-610', email='c@example.com')
+        r = RSVP.objects.create(event=event, member=m)
+        self.assertEqual(r.check_in_status, RSVP.CheckInStatus.PENDING)
+        self.assertIsNone(r.checked_in_at)
+
+
+class ScheduleSlotTests(TestCase):
+    def test_clean_rejects_both_speaker_sources(self):
+        event = _make_event(has_rsvp=False, name='Schedule Event')
+        proposal = SpeakerProposal.objects.create(
+            event=event, name='Approved Speaker', email='spk@example.com',
+            proposed_talk_title='Talk', talk_abstract='abstract',
+            status=SpeakerProposal.Status.APPROVED,
+        )
+        slot = ScheduleSlot(
+            event=event,
+            title='Conflict',
+            speaker_proposal=proposal,
+            manual_speaker_name='Someone Else',
+        )
+        with self.assertRaises(ValidationError):
+            slot.clean()
+
+    def test_speaker_display_name_prefers_proposal(self):
+        event = _make_event(has_rsvp=False, name='Display Event')
+        proposal = SpeakerProposal.objects.create(
+            event=event, name='Dr. Approved', email='dr@example.com',
+            proposed_talk_title='Title', talk_abstract='Abstract',
+            status=SpeakerProposal.Status.APPROVED,
+        )
+        slot = ScheduleSlot.objects.create(event=event, title='Keynote', speaker_proposal=proposal)
+        self.assertEqual(slot.speaker_display_name, 'Dr. Approved')
+
+    def test_speaker_display_name_falls_back_to_manual(self):
+        event = _make_event(has_rsvp=False, name='Manual Event')
+        slot = ScheduleSlot.objects.create(
+            event=event, title='Coffee + Manual',
+            manual_speaker_name='Jamie External',
+            manual_speaker_bio='Friend of the group.',
+        )
+        self.assertEqual(slot.speaker_display_name, 'Jamie External')
+        self.assertEqual(slot.speaker_display_bio, 'Friend of the group.')
+
+    def test_event_detail_renders_schedule_section(self):
+        event = _make_event(has_rsvp=False, name='With Programme')
+        ScheduleSlot.objects.create(event=event, title='Welcome remarks', order=1, manual_speaker_name='Host')
+        resp = self.client.get(reverse('events_and_activities:event_detail', args=[event.slug]))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'Schedule')
+        self.assertContains(resp, 'Welcome remarks')
+        self.assertContains(resp, 'Host')

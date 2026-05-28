@@ -1,0 +1,14 @@
+Hi {{ member.name }},
+
+There is an update on your check-in for {{ event.name }}.
+
+Status: {{ status_label }}
+
+{% if rsvp.check_in_status == 'accepted' %}You're checked in — welcome! Enjoy the event.
+{% elif rsvp.check_in_status == 'hold' %}Your check-in is on hold while the organizers look into something. Please find a member of the team at the venue.
+{% elif rsvp.check_in_status == 'denied' %}Unfortunately we are unable to admit you to this event. If you believe this is a mistake, please reply to this email and an organizer will follow up.
+{% else %}Your check-in status is now: {{ status_label }}.
+{% endif %}
+Event page: {{ event_url }}
+
+— {{ site_name }}

@@ -32,6 +32,8 @@
                         <th>Name</th>
                         <th>Email</th>
                         <th>Kind</th>
+                        <th>Events attended</th>
+                        <th>RSVPs</th>
                         <th>Joined</th>
                         <th></th>
                     </tr>
@@ -43,6 +45,8 @@
                             <td>{{ member.name }}</td>
                             <td>{{ member.email }}</td>
                             <td>{{ member.get_kind_display }}</td>
+                            <td>{{ member.attended_count }}</td>
+                            <td>{{ member.rsvp_count }}</td>
                             <td>{{ member.joined_at|date:"d M Y" }}</td>
                             <td class="text-end">
                                 <a href="{% url 'custom_admin:member_edit' member_id=member.member_id %}" class="btn btn-sm btn-dm-outline">Edit</a>
@@ -50,7 +54,7 @@
                         </tr>
                     {% empty %}
                         <tr class="empty-row">
-                            <td colspan="6">
+                            <td colspan="8">
                                 {% if q %}No members match "{{ q }}".{% else %}No members yet.{% endif %}
                             </td>
                         </tr>

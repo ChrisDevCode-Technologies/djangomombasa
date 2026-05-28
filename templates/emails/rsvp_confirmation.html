@@ -7,6 +7,13 @@
     <tr><td style="padding:4px 0;"><strong>When:</strong> {{ event.date|date:"l, d F Y · H:i" }}</td></tr>
     <tr><td style="padding:4px 0;"><strong>Member ID:</strong> {{ member.member_id }}</td></tr>
 </table>
+{% if has_qr %}
+<p><strong>Show this code at the door</strong> — an organizer will scan it to check you in.</p>
+<p style="text-align:center;margin:16px 0;">
+    <img src="{{ qr_data_uri }}" alt="Check-in QR code" width="220" height="220" style="display:inline-block;border:1px solid #D6DDD9;border-radius:8px;padding:8px;background:#ffffff;">
+</p>
+<p style="color:#6B7280;font-size:13px;text-align:center;">Can't see the code? Open this link on your phone: <a href="{{ check_in_url }}" style="color:#1F6B4C;">{{ check_in_url }}</a></p>
+{% endif %}
 <p>We'll send a reminder the day before the event.</p>
 <p><a href="{{ event_url }}" style="display:inline-block;background:#0D3F2E;color:#ffffff;padding:10px 18px;border-radius:6px;text-decoration:none;">View event page</a></p>
 <p style="color:#6B7280;font-size:13px;">— {{ site_name }}</p>
