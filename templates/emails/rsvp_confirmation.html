@@ -1,20 +1,62 @@
 {% extends "emails/base.html" %}
-{% block subject %}You're in: {{ event.name }}{% endblock %}
+{% block subject %}Your ticket: {{ event.name }}{% endblock %}
 {% block body %}
-<p>Hi {{ member.name }},</p>
-<p>You're confirmed for <strong>{{ event.name }}</strong>.</p>
-<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#F2F4F3;border-radius:8px;padding:12px 16px;margin:12px 0;">
-    <tr><td style="padding:4px 0;"><strong>When:</strong> {{ event.date|date:"l, d F Y · H:i" }}</td></tr>
-    <tr><td style="padding:4px 0;"><strong>Member ID:</strong> {{ member.member_id }}</td></tr>
+<p style="margin:0 0 12px;">Hi {{ member.name }},</p>
+<p style="margin:0 0 20px;">You're confirmed for <strong>{{ event.name }}</strong>. Here's your ticket — show the QR code at the door for check-in.</p>
+
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:separate;background:#ffffff;border:1px solid #D6DDD9;border-radius:12px;overflow:hidden;margin:0 0 18px;">
+    <tr>
+        <td style="background:#0D3F2E;color:#ffffff;padding:10px 18px;font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;">
+            Event Ticket &nbsp;·&nbsp; Admit One
+        </td>
+    </tr>
+    <tr>
+        <td style="padding:20px 24px 16px;">
+            <div style="font-size:22px;font-weight:700;color:#0D3F2E;line-height:1.25;margin:0 0 10px;">{{ event.name }}</div>
+            <div style="color:#1F6B4C;font-size:14px;font-weight:600;margin:0 0 2px;">
+                {{ event.date|date:"l, d F Y" }}
+            </div>
+            <div style="color:#6B7280;font-size:13px;">
+                {{ event.date|date:"H:i" }}{% if event.end_date %} &ndash; {{ event.end_date|date:"H:i" }}{% endif %} &nbsp;·&nbsp; Africa/Nairobi
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding:0 24px;">
+            <div style="border-top:2px dashed #D6DDD9;line-height:0;font-size:0;height:1px;">&nbsp;</div>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding:20px 24px 24px;background:#F2F4F3;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                <tr>
+                    <td valign="top" style="padding-right:16px;">
+                        <div style="font-size:10px;color:#6B7280;letter-spacing:0.14em;text-transform:uppercase;margin:0 0 4px;">Holder</div>
+                        <div style="font-size:16px;color:#1A1A1A;font-weight:600;margin:0 0 14px;">{{ member.name }}</div>
+
+                        <div style="font-size:10px;color:#6B7280;letter-spacing:0.14em;text-transform:uppercase;margin:0 0 4px;">Member ID</div>
+                        <div style="font-size:14px;color:#0D3F2E;font-weight:700;font-family:'SFMono-Regular',Consolas,Menlo,monospace;margin:0 0 14px;">{{ member.member_id }}</div>
+
+                        <div style="font-size:10px;color:#6B7280;letter-spacing:0.14em;text-transform:uppercase;margin:0 0 4px;">Ticket #</div>
+                        <div style="font-size:12px;color:#1F6B4C;font-family:'SFMono-Regular',Consolas,Menlo,monospace;word-break:break-all;">{{ rsvp.check_in_token|slice:":8"|upper }}</div>
+                    </td>
+                    {% if has_qr %}
+                    <td valign="top" align="right" width="170" style="width:170px;">
+                        <img src="{{ qr_data_uri }}" alt="Check-in QR code" width="150" height="150" style="display:block;border:1px solid #D6DDD9;border-radius:8px;padding:6px;background:#ffffff;">
+                        <div style="font-size:10px;color:#6B7280;text-align:center;margin-top:6px;letter-spacing:0.06em;text-transform:uppercase;">Scan at the door</div>
+                    </td>
+                    {% endif %}
+                </tr>
+            </table>
+        </td>
+    </tr>
 </table>
+
 {% if has_qr %}
-<p><strong>Show this code at the door</strong> — an organizer will scan it to check you in.</p>
-<p style="text-align:center;margin:16px 0;">
-    <img src="{{ qr_data_uri }}" alt="Check-in QR code" width="220" height="220" style="display:inline-block;border:1px solid #D6DDD9;border-radius:8px;padding:8px;background:#ffffff;">
-</p>
-<p style="color:#6B7280;font-size:13px;text-align:center;">Can't see the code? Open this link on your phone: <a href="{{ check_in_url }}" style="color:#1F6B4C;">{{ check_in_url }}</a></p>
+<p style="color:#6B7280;font-size:12px;margin:0 0 16px;">Can't see the code? Open this link on your phone: <a href="{{ check_in_url }}" style="color:#1F6B4C;">{{ check_in_url }}</a></p>
 {% endif %}
-<p>We'll send a reminder the day before the event.</p>
-<p><a href="{{ event_url }}" style="display:inline-block;background:#0D3F2E;color:#ffffff;padding:10px 18px;border-radius:6px;text-decoration:none;">View event page</a></p>
-<p style="color:#6B7280;font-size:13px;">— {{ site_name }}</p>
+
+<p style="margin:0 0 16px;">We'll send a reminder the day before the event.</p>
+<p style="margin:0 0 8px;"><a href="{{ event_url }}" style="display:inline-block;background:#0D3F2E;color:#ffffff;padding:10px 18px;border-radius:6px;text-decoration:none;font-weight:500;">View event page</a></p>
+<p style="color:#6B7280;font-size:13px;margin:24px 0 0;">— {{ site_name }}</p>
 {% endblock %}

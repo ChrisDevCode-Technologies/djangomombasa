@@ -1,12 +1,20 @@
 Hi {{ member.name }},
 
-You're confirmed for {{ event.name }}.
+You're confirmed for {{ event.name }}. Here's your ticket — show the QR code (or open the link below on your phone) at the door for check-in.
 
-When: {{ event.date|date:"l, d F Y · H:i" }}
-Member ID: {{ member.member_id }}
+============================================================
+  EVENT TICKET · ADMIT ONE
+============================================================
+  {{ event.name }}
+  {{ event.date|date:"l, d F Y" }}
+  {{ event.date|date:"H:i" }}{% if event.end_date %} – {{ event.end_date|date:"H:i" }}{% endif %} (Africa/Nairobi)
+------------------------------------------------------------
+  Holder:    {{ member.name }}
+  Member ID: {{ member.member_id }}
+  Ticket #:  {{ rsvp.check_in_token|slice:":8"|upper }}
+============================================================
 
-{% if has_qr %}Show this code at the door — an organizer will scan it to check you in.
-Check-in link: {{ check_in_url }}
+{% if has_qr %}Check-in link: {{ check_in_url }}
 
 {% endif %}We'll send a reminder the day before the event.
 

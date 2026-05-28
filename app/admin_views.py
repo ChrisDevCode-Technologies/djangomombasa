@@ -325,6 +325,29 @@ def volunteer_signup_status(request, pk):
 # --- RSVP check-in -----------------------------------------------------------
 
 @staff_required
+def check_in_picker(request):
+    now = timezone.now()
+    events = (
+        Event.objects.filter(has_rsvp=True)
+        .annotate(
+            rsvp_total=Count('rsvps', distinct=True),
+            accepted_total=Count(
+                'rsvps',
+                filter=Q(rsvps__check_in_status=RSVP.CheckInStatus.ACCEPTED),
+                distinct=True,
+            ),
+        )
+        .order_by('date')
+    )
+    upcoming = [e for e in events if e.date >= now - timezone.timedelta(hours=12)]
+    past = [e for e in events if e.date < now - timezone.timedelta(hours=12)][::-1]
+    return render(request, 'custom_admin/events/check_in_picker.html', {
+        'upcoming_events': upcoming,
+        'past_events': past,
+    })
+
+
+@staff_required
 def event_check_in(request, slug):
     event = get_object_or_404(Event, slug=slug)
     q = request.GET.get('q', '').strip()
@@ -356,6 +379,8 @@ def event_check_in(request, slug):
         'rsvp_count': event.rsvps.count(),
         'accepted_count': event.rsvps.filter(check_in_status=RSVP.CheckInStatus.ACCEPTED).count(),
         'status_choices': RSVP.CheckInStatus.choices,
+        'check_in_is_open': event.check_in_is_open,
+        'check_in_opens_at': event.check_in_opens_at,
     })
 
 
@@ -378,6 +403,14 @@ def rsvp_check_in_status(request, pk):
     allowed = {s.value for s in RSVP.CheckInStatus}
     if new_status not in allowed:
         messages.error(request, f'Invalid status "{new_status}".')
+        return redirect('custom_admin:event_check_in', slug=rsvp.event.slug)
+
+    if not rsvp.event.check_in_is_open:
+        opens_at = timezone.localtime(rsvp.event.check_in_opens_at)
+        messages.error(
+            request,
+            f'Check-in opens at {opens_at:%H:%M on %d %b} (2 hours before the event).',
+        )
         return redirect('custom_admin:event_check_in', slug=rsvp.event.slug)
 
     previous_status = rsvp.check_in_status

@@ -346,6 +346,31 @@ class RSVPCheckInTests(TestCase):
         self.assertIsNone(r.checked_in_at)
 
 
+class EventCheckInWindowTests(TestCase):
+    def test_check_in_closed_before_two_hour_window(self):
+        event = Event.objects.create(
+            name='Future Meetup',
+            date=timezone.now() + timezone.timedelta(hours=3),
+            details='x',
+            has_rsvp=True,
+        )
+        self.assertFalse(event.check_in_is_open)
+
+    def test_check_in_open_within_two_hours_of_start(self):
+        event = Event.objects.create(
+            name='Soon Meetup',
+            date=timezone.now() + timezone.timedelta(minutes=30),
+            details='x',
+            has_rsvp=True,
+        )
+        self.assertTrue(event.check_in_is_open)
+
+    def test_check_in_opens_at_is_two_hours_before_start(self):
+        start = timezone.now() + timezone.timedelta(days=1)
+        event = Event.objects.create(name='Tomorrow', date=start, details='x', has_rsvp=True)
+        self.assertEqual(event.check_in_opens_at, start - timezone.timedelta(hours=2))
+
+
 class ScheduleSlotTests(TestCase):
     def test_clean_rejects_both_speaker_sources(self):
         event = _make_event(has_rsvp=False, name='Schedule Event')

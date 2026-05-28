@@ -31,6 +31,17 @@
         <div class="text-muted small">{{ accepted_count }} accepted · {{ rsvp_count }} total RSVPs</div>
     </div>
 
+    {% if not check_in_is_open %}
+        <div class="alert alert-warning d-flex align-items-center gap-2 mb-3" role="alert">
+            <i class="bi bi-clock-history"></i>
+            <div>
+                <strong>Check-in not open yet.</strong>
+                Opens {{ check_in_opens_at|date:"D, d M · H:i" }} (2 hours before the event starts at {{ event.date|date:"H:i" }}).
+                Status changes are disabled until then.
+            </div>
+        </div>
+    {% endif %}
+
     <div class="admin-card mb-4">
         <div class="admin-card-header">
             <h2>Find an attendee</h2>
@@ -99,6 +110,7 @@
                                 {% endif %}
                             </td>
                             <td>
+                                {% if check_in_is_open %}
                                 <div class="status-actions">
                                     {% if rsvp.check_in_status != 'accepted' %}
                                         <form method="post" action="{% url 'custom_admin:rsvp_check_in_status' pk=rsvp.pk %}">
@@ -129,6 +141,9 @@
                                         </form>
                                     {% endif %}
                                 </div>
+                                {% else %}
+                                    <span class="text-muted small"><i class="bi bi-lock"></i> Locked</span>
+                                {% endif %}
                             </td>
                         </tr>
                     {% endfor %}
