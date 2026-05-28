@@ -43,7 +43,7 @@
                         </div>
                         <h5 class="card-title fw-semibold"><a href="{% url 'events_and_activities:event_detail' event.slug %}" class="text-decoration-none" style="color: inherit;">{{ event.name }}</a></h5>
                         <p class="text-muted small mb-2"><i class="bi bi-calendar-event me-1"></i> {{ event.date|date:"F j, Y · g:i A" }}</p>
-                        <p class="card-text">{{ event.details|truncate_sentences:3 }}</p>
+                        <p class="card-text">{{ event.details|striptags|truncate_sentences:3 }}</p>
                         <div class="mt-auto d-flex gap-2">
                             <a href="{% url 'events_and_activities:event_detail' event.slug %}" class="btn btn-outline-primary" style="width: fit-content;">Details</a>
                             {% if event.rsvp_link %}
@@ -79,7 +79,7 @@
                         </div>
                         <h5 class="card-title fw-semibold"><a href="{% url 'events_and_activities:event_detail' event.slug %}" class="text-decoration-none" style="color: inherit;">{{ event.name }}</a></h5>
                         <p class="text-muted small mb-2"><i class="bi bi-calendar-event me-1"></i> {{ event.date|date:"F j, Y" }}</p>
-                        <p class="card-text">{{ event.details|truncate_sentences:3 }}</p>
+                        <p class="card-text">{{ event.details|striptags|truncate_sentences:3 }}</p>
                         <a href="{% url 'events_and_activities:event_detail' event.slug %}" class="btn btn-outline-secondary mt-auto" style="width: fit-content;">Details</a>
                     </div>
                 </div>

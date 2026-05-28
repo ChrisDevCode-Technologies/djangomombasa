@@ -154,6 +154,9 @@ class ScheduleSlotForm(forms.ModelForm):
     def _combine_event_date(self, time_value):
         if time_value is None or self.event is None:
             return None
+        # Already a full datetime (e.g. combined in clean()) — leave it untouched.
+        if isinstance(time_value, datetime):
+            return time_value
         event_local = timezone.localtime(self.event.date)
         naive = datetime.combine(event_local.date(), time_value)
         return timezone.make_aware(naive, event_local.tzinfo)
@@ -176,9 +179,15 @@ class ScheduleSlotForm(forms.ModelForm):
         start = cleaned.get('start_time')
         end = cleaned.get('end_time')
 
-        # One-day events use time-of-day inputs that are combined with the event's date
-        # at save time, so the window is enforced implicitly — only ordering needs a check.
+        # One-day events use time-of-day inputs. Combine them with the event's date here,
+        # before ModelForm's _post_clean assigns them to the DateTimeField on the instance,
+        # otherwise model validation receives a bare time and raises a TypeError.
         if self.event is not None and self.event.is_one_day:
+            start = self._combine_event_date(start)
+            end = self._combine_event_date(end)
+            cleaned['start_time'] = start
+            cleaned['end_time'] = end
+            # The window is enforced implicitly (same day), so only ordering needs a check.
             if start and end and end <= start:
                 self.add_error('end_time', 'End time must be after the start time.')
             return cleaned
