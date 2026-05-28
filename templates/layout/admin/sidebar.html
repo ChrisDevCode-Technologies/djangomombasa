@@ -13,6 +13,9 @@
         <a class="nav-link {% if current == 'event_list' or current == 'event_create' or current == 'event_edit' or current == 'event_detail' %}active{% endif %}" href="{% url 'custom_admin:event_list' %}">
             <i class="bi bi-calendar-event"></i> Events
         </a>
+        <a class="nav-link {% if current == 'check_in_picker' or current == 'event_check_in' %}active{% endif %}" href="{% url 'custom_admin:check_in_picker' %}">
+            <i class="bi bi-qr-code-scan"></i> Check-in
+        </a>
         <a class="nav-link {% if current == 'member_list' or current == 'member_create' or current == 'member_edit' or current == 'member_detail' %}active{% endif %}" href="{% url 'custom_admin:member_list' %}">
             <i class="bi bi-people"></i> Members
         </a>

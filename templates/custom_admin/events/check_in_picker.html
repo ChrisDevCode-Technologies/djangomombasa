@@ -1,0 +1,92 @@
+{% extends "layout/admin/base.html" %}
+
+{% block page_title %}Check-in{% endblock %}
+{% block page_heading %}Check-in · pick an event{% endblock %}
+
+{% block admin_content %}
+    <p class="text-muted">Pick the event you're running check-in for. Check-in opens 2 hours before the event start time.</p>
+
+    <div class="admin-card mb-4">
+        <div class="admin-card-header">
+            <h2>Upcoming &amp; in-progress</h2>
+            <span class="text-muted small">{{ upcoming_events|length }} event{{ upcoming_events|length|pluralize }}</span>
+        </div>
+        {% if upcoming_events %}
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Start</th>
+                            <th>Check-in opens</th>
+                            <th>RSVPs</th>
+                            <th>Checked in</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in upcoming_events %}
+                            <tr>
+                                <td><a href="{% url 'custom_admin:event_detail' slug=event.slug %}">{{ event.name }}</a></td>
+                                <td>{{ event.date|date:"D, d M · H:i" }}</td>
+                                <td>
+                                    {% if event.check_in_is_open %}
+                                        <span class="status-badge status-approved">Open now</span>
+                                    {% else %}
+                                        {{ event.check_in_opens_at|date:"D, d M · H:i" }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ event.rsvp_total }}</td>
+                                <td>{{ event.accepted_total }}</td>
+                                <td>
+                                    <a href="{% url 'custom_admin:event_check_in' slug=event.slug %}" class="btn btn-sm btn-dm-primary">
+                                        <i class="bi bi-qr-code-scan"></i> Start check-in
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">No upcoming events with RSVP enabled.</p>
+        {% endif %}
+    </div>
+
+    {% if past_events %}
+    <div class="admin-card mb-4">
+        <div class="admin-card-header">
+            <h2>Past events</h2>
+            <span class="text-muted small">{{ past_events|length }} event{{ past_events|length|pluralize }}</span>
+        </div>
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Event</th>
+                        <th>Date</th>
+                        <th>RSVPs</th>
+                        <th>Checked in</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in past_events %}
+                        <tr>
+                            <td><a href="{% url 'custom_admin:event_detail' slug=event.slug %}">{{ event.name }}</a></td>
+                            <td>{{ event.date|date:"D, d M Y" }}</td>
+                            <td>{{ event.rsvp_total }}</td>
+                            <td>{{ event.accepted_total }}</td>
+                            <td>
+                                <a href="{% url 'custom_admin:event_check_in' slug=event.slug %}" class="btn btn-sm btn-dm-outline">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}

@@ -1,4 +1,5 @@
 import uuid
+from datetime import timedelta
 
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -126,6 +127,16 @@ class Event(models.Model):
         if self.end_date is None:
             return True
         return timezone.localtime(self.end_date).date() == timezone.localtime(self.date).date()
+
+    CHECK_IN_OPENS_BEFORE_HOURS = 2
+
+    @property
+    def check_in_opens_at(self):
+        return self.date - timedelta(hours=self.CHECK_IN_OPENS_BEFORE_HOURS)
+
+    @property
+    def check_in_is_open(self):
+        return timezone.now() >= self.check_in_opens_at
 
     @property
     def cfp_deadline_passed(self):

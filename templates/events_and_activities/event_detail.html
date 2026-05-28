@@ -49,10 +49,44 @@
         color: var(--dm-secondary);
         margin-top: 0.5rem;
     }
+    .staff-toolbar {
+        background: var(--dm-bg-light);
+        border-bottom: 1px solid var(--dm-border);
+        padding: 0.5rem 0;
+        font-size: 0.9rem;
+    }
+    .staff-toolbar .staff-label {
+        color: var(--dm-muted-text);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        font-size: 0.75rem;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
+
+{% if user.is_authenticated and user.is_staff %}
+<div class="staff-toolbar">
+    <div class="container d-flex flex-wrap gap-2 align-items-center justify-content-between">
+        <span class="staff-label"><i class="bi bi-shield-lock me-1"></i> Staff tools</span>
+        <div class="d-flex flex-wrap gap-2">
+            {% if event.has_rsvp %}
+                <a href="{% url 'custom_admin:event_check_in' slug=event.slug %}" class="btn btn-sm btn-primary">
+                    <i class="bi bi-qr-code-scan me-1"></i> Check-in mode
+                    {% if not event.check_in_is_open %}
+                        <span class="badge bg-light text-dark ms-1">Opens {{ event.check_in_opens_at|date:"d M H:i" }}</span>
+                    {% endif %}
+                </a>
+            {% endif %}
+            <a href="{% url 'custom_admin:event_detail' slug=event.slug %}" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-gear me-1"></i> Manage event
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
 
 <!-- Header -->
 <section class="event-header text-white py-5">

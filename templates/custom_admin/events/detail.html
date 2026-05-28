@@ -8,11 +8,19 @@
         <a href="{% url 'custom_admin:event_list' %}" class="btn btn-sm btn-dm-outline">
             <i class="bi bi-arrow-left"></i> Back to events
         </a>
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 flex-wrap">
+            {% if event.has_rsvp %}
+                <a href="{% url 'custom_admin:event_check_in' slug=event.slug %}" class="btn btn-dm-primary">
+                    <i class="bi bi-qr-code-scan"></i> Check-in
+                    {% if not event.check_in_is_open %}
+                        <span class="badge bg-light text-dark ms-1">opens {{ event.check_in_opens_at|date:"d M H:i" }}</span>
+                    {% endif %}
+                </a>
+            {% endif %}
             <a href="{% url 'events_and_activities:event_detail' slug=event.slug %}" class="btn btn-dm-outline" target="_blank" rel="noopener">
                 <i class="bi bi-box-arrow-up-right"></i> View public page
             </a>
-            <a href="{% url 'custom_admin:event_edit' slug=event.slug %}" class="btn btn-dm-primary">
+            <a href="{% url 'custom_admin:event_edit' slug=event.slug %}" class="btn btn-dm-outline">
                 <i class="bi bi-pencil"></i> Edit
             </a>
         </div>

@@ -159,6 +159,27 @@ python manage.py runserver
 
 Visit `http://localhost:8000` for the site and `http://localhost:8000/dashboard/` for the admin panel.
 
+#### Seed Demo Data
+
+To populate the database with comprehensive dummy data across every model (members, RSVP guests, events covering single-day / multi-day / full-capacity / past-deadline states, RSVPs at every check-in status, speaker proposals and volunteer signups at every status, schedule slots, organizers, partners, sponsors at every tier, pages, articles, news items, etc.), run:
+
+```bash
+python manage.py seed_data
+
+# Or wipe the demo events (and their cascaded submissions) before re-seeding:
+python manage.py seed_data --reset
+```
+
+The command is idempotent and also creates three demo users with predictable passwords:
+
+| Email | Password | Role |
+|-------|----------|------|
+| `admin@mail.com` | `adminpass123` | Superuser — full admin access at `/dashboard/` |
+| `staff@mail.com` | `staffpass123` | Staff — admin login, no superuser perms |
+| `member@mail.com` | `memberpass123` | Regular user |
+
+> **Demo credentials only.** Never run `seed_data` in production — it resets the password on these accounts every run.
+
 ### Docker (Production)
 
 Runs Django with Gunicorn + PostgreSQL 17.
