@@ -78,13 +78,14 @@ def rsvp(request, slug):
 
 
 def _create_rsvp_or_capacity_error(event, member, form, field_name):
-    """Atomically re-check capacity inside a transaction before creating the RSVP."""
+    """Re-check capacity inside a transaction that holds a row lock on the event,
+    so concurrent RSVPs racing for the last seat serialize at the DB level."""
     with transaction.atomic():
-        event.refresh_from_db()
-        if event.rsvp_is_full:
+        locked_event = Event.objects.select_for_update().get(pk=event.pk)
+        if locked_event.rsvp_is_full:
             form.add_error(field_name, 'Sorry — this event just reached capacity. RSVPs are now closed.')
             return None
-        return RSVP.objects.create(event=event, member=member)
+        return RSVP.objects.create(event=locked_event, member=member)
 
 
 def rsvp_success(request, slug, rsvp_id):
