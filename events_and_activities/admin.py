@@ -35,11 +35,19 @@ class ScheduleSlotResource(resources.ModelResource):
         model = ScheduleSlot
 
 
-class ScheduleSlotInline(admin.TabularInline):
+class ScheduleSlotInline(admin.StackedInline):
     model = ScheduleSlot
     extra = 0
     autocomplete_fields = ('speaker_proposal',)
-    fields = ('order', 'title', 'start_time', 'end_time', 'speaker_proposal', 'manual_speaker_name')
+    fields = (
+        'order',
+        'title',
+        'summary',
+        ('start_time', 'end_time'),
+        'speaker_proposal',
+        'manual_speaker_name',
+        'manual_speaker_bio',
+    )
 
 
 @admin.register(Tag)

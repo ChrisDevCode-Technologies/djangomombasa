@@ -10,5 +10,8 @@ Status: {{ status_label }}
 {% else %}Your check-in status is now: {{ status_label }}.
 {% endif %}
 Event page: {{ event_url }}
-
+{% if schedule_slots %}
+Schedule:
+{% for slot in schedule_slots %}- {% if slot.start_time %}{% if event.is_one_day %}{{ slot.start_time|date:"H:i" }}{% if slot.end_time %}–{{ slot.end_time|date:"H:i" }}{% endif %}{% else %}{{ slot.start_time|date:"D, j M · H:i" }}{% if slot.end_time %}–{{ slot.end_time|date:"H:i" }}{% endif %}{% endif %} · {% endif %}{{ slot.title }}{% if slot.speaker_display_name %} ({{ slot.speaker_display_name }}){% endif %}
+{% endfor %}{% endif %}
 — {{ site_name }}

@@ -27,7 +27,13 @@ class Event(models.Model):
         help_text='When the event finishes. Leave blank for a single-day event ending on the start date.',
     )
     rsvp_link = models.URLField(blank=True)
-    details = models.TextField()
+    details = models.TextField(
+        help_text=(
+            'Event description shown on the public detail page. '
+            'HTML is rendered as-is (links, lists, line breaks via <br>, etc.), '
+            'so use real tags rather than plain newlines for formatting.'
+        ),
+    )
     has_rsvp = models.BooleanField(
         default=False,
         help_text='Enable the internal members-only RSVP form. When off, the external rsvp_link is used instead.',
@@ -256,3 +262,18 @@ class ScheduleSlot(models.Model):
         if self.speaker_proposal:
             return self.speaker_proposal.bio
         return self.manual_speaker_bio
+
+    @property
+    def duration_display(self):
+        if not (self.start_time and self.end_time):
+            return ''
+        seconds = int((self.end_time - self.start_time).total_seconds())
+        if seconds <= 0:
+            return ''
+        minutes, _ = divmod(seconds, 60)
+        hours, minutes = divmod(minutes, 60)
+        if hours and minutes:
+            return f'{hours} h {minutes} min'
+        if hours:
+            return f'{hours} h'
+        return f'{minutes} min'

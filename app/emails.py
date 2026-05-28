@@ -208,10 +208,15 @@ def send_rsvp_confirmation(rsvp) -> bool:
 
 def send_rsvp_check_in_status_changed(rsvp, previous_status: str | None = None) -> bool:
     status_label = rsvp.get_check_in_status_display()
-    if rsvp.check_in_status == 'accepted':
+    is_accepted = rsvp.check_in_status == 'accepted'
+    if is_accepted:
         subject = f"You're checked in: {rsvp.event.name}"
+        schedule_slots = list(
+            rsvp.event.schedule_slots.select_related('speaker_proposal').all()
+        )
     else:
         subject = f'Update on your check-in for {rsvp.event.name}'
+        schedule_slots = []
     return _send(
         subject=subject,
         template_base='emails/rsvp_check_in_status',
@@ -222,6 +227,7 @@ def send_rsvp_check_in_status_changed(rsvp, previous_status: str | None = None) 
             'event_url': _event_url(rsvp.event),
             'previous_status': previous_status,
             'status_label': status_label,
+            'schedule_slots': schedule_slots,
         },
         recipients=[rsvp.member.email],
     )

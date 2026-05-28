@@ -2,6 +2,11 @@
 {% load static %}
 
 {% block title %}{{ page.title }} | Django Mombasa{% endblock %}
+{% block meta_description %}{{ page.content|striptags|truncatechars:160 }}{% endblock %}
+{% block og_title %}{{ page.title }} | Django Mombasa{% endblock %}
+{% block og_description %}{{ page.content|striptags|truncatechars:160 }}{% endblock %}
+{% block twitter_title %}{{ page.title }} | Django Mombasa{% endblock %}
+{% block twitter_description %}{{ page.content|striptags|truncatechars:160 }}{% endblock %}
 
 {% block extra_css %}
 <style>

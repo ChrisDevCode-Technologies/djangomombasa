@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django import forms
+from django.template.defaultfilters import date as django_date
 from django.utils import timezone
 from django_summernote.widgets import SummernoteWidget
 
@@ -171,6 +172,36 @@ class ScheduleSlotForm(forms.ModelForm):
         cleaned = super().clean()
         if cleaned.get('speaker_proposal') and cleaned.get('manual_speaker_name'):
             raise forms.ValidationError('Pick a speaker proposal OR fill the manual speaker name, not both.')
+
+        start = cleaned.get('start_time')
+        end = cleaned.get('end_time')
+
+        # One-day events use time-of-day inputs that are combined with the event's date
+        # at save time, so the window is enforced implicitly — only ordering needs a check.
+        if self.event is not None and self.event.is_one_day:
+            if start and end and end <= start:
+                self.add_error('end_time', 'End time must be after the start time.')
+            return cleaned
+
+        # Multi-day events use full datetimes — keep the slot inside [event.date, event.end_date].
+        if self.event is not None:
+            window_start = self.event.date
+            window_end = self.event.end_date
+            if start and start < window_start:
+                self.add_error(
+                    'start_time',
+                    'Start must be on or after the event begins '
+                    f'({django_date(timezone.localtime(window_start), "D, j M · H:i")}).',
+                )
+            if end and window_end and end > window_end:
+                self.add_error(
+                    'end_time',
+                    'End must be on or before the event finishes '
+                    f'({django_date(timezone.localtime(window_end), "D, j M · H:i")}).',
+                )
+            if start and end and end <= start:
+                self.add_error('end_time', 'End time must be after the start time.')
+
         return cleaned
 
 
