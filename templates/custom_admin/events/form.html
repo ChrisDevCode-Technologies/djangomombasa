@@ -32,6 +32,13 @@
         </div>
 
         <div class="mb-3">
+            <label for="{{ form.location.id_for_label }}" class="form-label">Location</label>
+            {{ form.location }}
+            <div class="form-text">Venue name and/or address shown on the events listing.</div>
+            {% if form.location.errors %}<div class="text-danger small mt-1">{{ form.location.errors|join:', ' }}</div>{% endif %}
+        </div>
+
+        <div class="mb-3">
             <label for="{{ form.rsvp_link.id_for_label }}" class="form-label">External RSVP link</label>
             {{ form.rsvp_link }}
             <div class="form-text">Used when the internal RSVP form is disabled.</div>

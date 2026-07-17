@@ -59,7 +59,7 @@ class TagAdmin(ImportExportModelAdmin):
 @admin.register(Event)
 class EventAdmin(ImportExportModelAdmin):
     resource_classes = [EventResource]
-    list_display = ('name', 'slug', 'date', 'has_rsvp', 'rsvp_capacity', 'rsvp_deadline', 'has_cfp', 'has_cfv')
+    list_display = ('name', 'slug', 'date', 'location', 'has_rsvp', 'rsvp_capacity', 'rsvp_deadline', 'has_cfp', 'has_cfv')
     list_filter = ('tags', 'date', 'has_rsvp', 'has_cfp', 'has_cfv')
     search_fields = ('name',)
     filter_horizontal = ('tags',)

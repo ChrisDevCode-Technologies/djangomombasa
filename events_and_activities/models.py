@@ -27,6 +27,11 @@ class Event(models.Model):
         blank=True,
         help_text='When the event finishes. Leave blank for a single-day event ending on the start date.',
     )
+    location = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text='Where the event is held (venue name and/or address). Shown on the events listing.',
+    )
     rsvp_link = models.URLField(blank=True)
     details = models.TextField(
         help_text=(
